@@ -12,16 +12,18 @@
     "@hookform/resolvers": "^3.1.0",
     "@rainbow-me/rainbowkit": "^1.0.0",
     "autoprefixer": "10.4.14",
-    "eslint": "8.39.0",
     "eslint-config-next": "13.3.1",
+    "ethers": "^6.3.0",
     "next": "13.3.1",
     "overlayscrollbars": "^2.1.1",
     "overlayscrollbars-react": "^0.5.0",
     "postcss": "8.4.23",
     "react": "18.2.0",
+    "react-confirm-alert": "^3.0.6",
     "react-datepicker": "^4.11.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.43.9",
+    "react-slugify": "^3.0.2",
     "styled-components": "^5.3.10",
     "tailwindcss": "3.3.2",
     "viem": "^0.3.26",
@@ -29,6 +31,15 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
-    "babel-plugin-styled-components": "^2.1.1"
+    "@next/eslint-plugin-next": "^13.4.2",
+    "babel-plugin-styled-components": "^2.1.1",
+    "eslint": "^8.40.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "prettier": "^2.8.8"
   }
 }
