@@ -49,11 +49,12 @@ function FormCalculate({ setModalOpen, setSimulation }) {
         const startDateTimestamp = new Date(startDate).getTime();
         const simulation = {
             startDate: startDateTimestamp,
-            endDate: startDateTimestamp + form.days * 24 * 60 * 60 * 1000,
+            endDate: startDateTimestamp + (form.days * 24 * 60 * 60 - 1) * 1000,
             days: form.days,
             amount: form.amount,
             lat: place.lat,
             lng: place.lng,
+            placeName: place.name,
             placeId,
         };
         setCalculating(true);
@@ -89,9 +90,6 @@ function FormCalculate({ setModalOpen, setSimulation }) {
                                 {item.name}
                             </option>
                         ))}
-                        <option key={1000} value={123}>
-                            Teste
-                        </option>
                     </select>
                     {errors.destination && (
                         <span>{errors.destination.message}</span>

@@ -6,7 +6,6 @@ import IconCalendar from "../../public/icons/icon-calendar-blue.png";
 import { confirmAlert } from "react-confirm-alert"; // Import
 import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
 
-import Modal from "@/components/ModalTemplate/modal";
 import {
     Policies,
     Container,
@@ -17,8 +16,6 @@ import {
     ContainerRain,
     ContainerBodyItem,
     Status,
-    ModalCStatus,
-    H3Modal,
 } from "@/styles/policies";
 import Image from "next/image";
 import { useState, useEffect } from "react";
@@ -28,27 +25,60 @@ import { readContract } from "@wagmi/core";
 
 import { ethers } from "ethers";
 import RainProductAbi from "../utils/RainProduct.json";
+import InstanceServiceAbi from "../utils/InstanceService.json";
 import { destinations } from "../utils/destinations";
 
 const RISK_STATUS = {
-    ACTIVE: { label: "", color: "", processable: true, claimable: false },
+    ACTIVE: {
+        label: "'Policy is active'",
+        color: "#0072ff",
+        processable: false,
+        claimable: false,
+    },
+    INACTIVE: {
+        label: "",
+        color: "",
+        processable: true,
+        claimable: false,
+    },
     PENDING: {
-        label: "'Pendent'",
+        label: "'Checking weather...'",
         color: "#0072ff",
         processable: false,
         claimable: false,
     },
     APPROVED: {
-        label: "'Approved'",
+        label: "'Risk approved'",
         color: "#19cd14",
         processable: false,
         claimable: true,
     },
     REJECTED: {
-        label: "'Rejected'",
+        label: "'Risk rejected'",
         color: "#d03537",
         processable: false,
         claimable: false,
+    },
+};
+
+const PAYOUT_STATUS = {
+    PENDING: {
+        label: "",
+        color: "",
+        requested: false,
+        paid_out: false,
+    },
+    REQUESTED: {
+        label: "'Payment requested'",
+        color: "#0072ff",
+        requested: true,
+        paid_out: false,
+    },
+    PAID_OUT: {
+        label: "'Payout done'",
+        color: "#19cd14",
+        requested: true,
+        paid_out: true,
     },
 };
 
@@ -71,6 +101,7 @@ function preparePolicy(data) {
         city = { name: "Unknown" };
     }
     return {
+        stage: 1,
         processId: data.processId,
         riskId: data.riskId,
         city,
@@ -79,6 +110,25 @@ function preparePolicy(data) {
         sumInsured: Number(data.sumInsured) / 1e6,
         avgPrec: Number(data.aph),
         isActive: isFutureDate(Number(data.endDate)),
+    };
+}
+
+//ApplicationState {Applied, Revoked, Underwritten, Declined}
+//PolicyState {Active, Expired, Closed}
+//ClaimState {Applied, Confirmed, Declined, Closed}
+//PayoutState {Expected, PaidOut}
+function preparePayout(data) {
+    let payoutStatus;
+    if (data.state == 0) {
+        payoutStatus = "PENDING";
+    } else if (data.state == 2) {
+        payoutStatus = "PAID_OUT";
+    } else {
+        payoutStatus = "REQUESTED";
+    }
+    return {
+        ...data,
+        status: PAYOUT_STATUS[payoutStatus],
     };
 }
 
@@ -94,6 +144,8 @@ function prepareRisk(policyActive, data) {
         } else {
             riskStatus = "PENDING";
         }
+    } else if (!policyActive) {
+        riskStatus = "INACTIVE";
     } else {
         riskStatus = "ACTIVE";
     }
@@ -104,11 +156,8 @@ function prepareRisk(policyActive, data) {
 }
 
 const PoliciesView = () => {
-    const [modalOpen, setModalOpen] = useState(false);
-    const [selectedItem, setSelectedItem] = useState(null);
     const [policies, setPolicies] = useState([]);
     const [policiesIds, setPolicieIds] = useState([]);
-    const [riskId, setRiskId] = useState(null);
     const [claiming, setClaiming] = useState(false);
     const { address } = useAccount();
 
@@ -123,24 +172,84 @@ const PoliciesView = () => {
         },
     });
 
-    const { refetch: getRisk } = useContractRead({
-        address: process.env.NEXT_PUBLIC_RAIN_PRODUCT_ADDRESS,
-        abi: RainProductAbi,
-        functionName: "getRisk",
-        enabled: false,
-        args: [riskId],
-        onSuccess(data) {
-            const policy = policies.find((item) => item.riskId === data.id);
+    async function getRisk(riskId) {
+        console.log(`Pulling riskId ${riskId}...`);
+        await readContract({
+            address: process.env.NEXT_PUBLIC_RAIN_PRODUCT_ADDRESS,
+            abi: RainProductAbi,
+            functionName: "getRisk",
+            enabled: false,
+            args: [riskId],
+        }).then((risk) => {
+            console.log(`Done! Risk is:`);
+            console.log(risk);
+            const policy = policies.find((item) => item.riskId === risk.id);
             if (policy) {
+                console.log(`risk policy found:`);
+                console.log(policy);
                 addPolicy({
                     ...policy,
-                    risk: prepareRisk(policy.isActive, data),
+                    risk: prepareRisk(policy.isActive, risk),
+                    stage: 2,
                 });
+            } else {
+                console.log(`risk policy NOT found!`);
             }
-        },
-    });
+        });
+    }
+
+    async function getApplication(policyId) {
+        console.log(`Pulling application for policyId ${policyId}...`);
+        await readContract({
+            address: process.env.NEXT_PUBLIC_INSTANCE_SERVICE_ADDRESS,
+            abi: InstanceServiceAbi,
+            functionName: "getApplication",
+            args: [policyId],
+        }).then((application) => {
+            console.log(`Done! Application is:`);
+            console.log(application);
+            const policy = policies.find((item) => item.processId === policyId);
+            if (policy) {
+                console.log(`application policy found:`);
+                console.log(policy);
+                addPolicy({
+                    ...policy,
+                    application,
+                    stage: 3,
+                });
+            } else {
+                console.log(`application policy NOT found!`);
+            }
+        });
+    }
+
+    async function getPayout(policyId) {
+        console.log(`Pulling details for policyId ${policyId}...`);
+        await readContract({
+            address: process.env.NEXT_PUBLIC_INSTANCE_SERVICE_ADDRESS,
+            abi: InstanceServiceAbi,
+            functionName: "getPolicy",
+            args: [policyId],
+        }).then((details) => {
+            console.log(`Done! Policy details is:`);
+            console.log(details);
+            const policy = policies.find((item) => item.processId === policyId);
+            if (policy) {
+                console.log(`details policy found:`);
+                console.log(policy);
+                addPolicy({
+                    ...policy,
+                    payout: preparePayout(details),
+                    stage: 4,
+                });
+            } else {
+                console.log(`application policy NOT found!`);
+            }
+        });
+    }
 
     function addPolicy(newPolicy) {
+        console.log(`Adding Policy...`);
         setPolicies((oldArray) => [
             // eslint-disable-next-line no-undef
             ...new Map(
@@ -161,42 +270,46 @@ const PoliciesView = () => {
                 abi: RainProductAbi,
                 functionName: "processForHolder",
                 args: [address, idx],
-            }).then((policy) => {
-                console.log(`policy ${idx} is:`);
+            }).then(async (policy) => {
+                console.log(`DONE! Policy ${idx} is:`);
                 console.log(policy);
-                setRiskId(policy.riskId);
                 addPolicy(preparePolicy(policy));
             });
             idx += 1;
         }
     }
 
-    async function processPolicy(endpoint, policyId) {
+    async function processPolicy(endpoint, policy) {
         if (claiming) {
             return;
         }
         setClaiming(true);
+        if (endpoint == "process") {
+            policy.risk.status = RISK_STATUS["PENDING"];
+        } else {
+            policy.payout.status = PAYOUT_STATUS["REQUESTED"];
+        }
+        addPolicy(policy);
         const response = await fetch(`/api/policies/${endpoint}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ policyId }),
+            body: JSON.stringify({ policyId: policy.processId }),
         });
         const data = await response.json();
         console.log("tx", data.tx);
         setClaiming(false);
-        setModalOpen(true);
     }
 
-    async function confirmationDialog(title, message, policyId, endpoint) {
+    async function confirmationDialog(title, message, policy, endpoint) {
         confirmAlert({
             title: title,
             message: message,
             buttons: [
                 {
                     label: "Yes",
-                    onClick: () => processPolicy(endpoint, policyId),
+                    onClick: () => processPolicy(endpoint, policy),
                 },
                 {
                     label: "No",
@@ -211,15 +324,24 @@ const PoliciesView = () => {
         getPolicies();
     }, [policiesIds]);
 
-    useEffect(() => {
-        console.log("riskId is:", riskId);
-        if (riskId !== null) {
-            getRisk();
-        }
-    }, [riskId]);
+    // useEffect(() => {
+    //     console.log("riskId is:", riskId);
+    //     if (riskId !== null) {
+    //         getRisk();
+    //     }
+    // }, [riskId]);
 
     useEffect(() => {
         console.log("policies is:", policies);
+        for (let policy of policies) {
+            if (policy.stage == 1) {
+                getRisk(policy.riskId);
+            } else if (policy.stage == 2) {
+                getApplication(policy.processId);
+            } else if (policy.stage == 3) {
+                getPayout(policy.processId);
+            }
+        }
     }, [policies]);
 
     return (
@@ -240,10 +362,17 @@ const PoliciesView = () => {
                                     />
                                     {item.city.name}
                                 </h3>
-                                <Status
-                                    content={item.risk?.status["label"]}
-                                    color={item.risk?.status["color"]}
-                                />
+                                {item.payout?.status["requested"] ? (
+                                    <Status
+                                        content={item.payout?.status["label"]}
+                                        color={item.payout?.status["color"]}
+                                    />
+                                ) : (
+                                    <Status
+                                        content={item.risk?.status["label"]}
+                                        color={item.risk?.status["color"]}
+                                    />
+                                )}
                             </ContainerItemTop>
                             <ContainerBody>
                                 <ContainerBodyItem>
@@ -269,21 +398,6 @@ const PoliciesView = () => {
                                         <p>{item.avgPrec} mm</p>
                                     </ContainerRain>
                                 </ContainerBodyItem>
-                                {item.risk?.status["claimable"] && (
-                                    <Link
-                                        href=""
-                                        onClick={() =>
-                                            confirmationDialog(
-                                                "Claim confirmation",
-                                                "Are you sure you want to claim this policy?",
-                                                item.id,
-                                                "claim"
-                                            )
-                                        }
-                                    >
-                                        Claim
-                                    </Link>
-                                )}
                                 {item.risk?.status["processable"] && (
                                     <Link
                                         href=""
@@ -291,7 +405,7 @@ const PoliciesView = () => {
                                             confirmationDialog(
                                                 "Process confirmation",
                                                 "Are you sure you want to check the weather for this policy?",
-                                                item.id,
+                                                item,
                                                 "process"
                                             )
                                         }
@@ -299,33 +413,26 @@ const PoliciesView = () => {
                                         Process
                                     </Link>
                                 )}
+                                {item.risk?.status["claimable"] &&
+                                    !item.payout?.status["requested"] && (
+                                        <Link
+                                            href=""
+                                            onClick={() =>
+                                                confirmationDialog(
+                                                    "Claim confirmation",
+                                                    "Are you sure you want to claim this policy?",
+                                                    item,
+                                                    "claim"
+                                                )
+                                            }
+                                        >
+                                            Claim
+                                        </Link>
+                                    )}
                             </ContainerBody>
                         </ContainerItem>
                     ))}
                 </Container>
-
-                <Modal
-                    isOpen={modalOpen}
-                    setIsOpen={setModalOpen}
-                    closeButton={true}
-                    backModalClick={true}
-                    escapeClose={false}
-                >
-                    {selectedItem !== null && (
-                        <ModalCStatus>
-                            <H3Modal
-                                colorStatus={selectedItem?.modalTitleColor}
-                            >
-                                <img
-                                    src={selectedItem?.iconModalStatus}
-                                    alt={selectedItem?.modalStatus}
-                                />
-                                {selectedItem?.modalStatus}
-                            </H3Modal>
-                            <p>{selectedItem?.txtModal}</p>
-                        </ModalCStatus>
-                    )}
-                </Modal>
             </Policies>
         </Layout>
     );

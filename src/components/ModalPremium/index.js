@@ -30,10 +30,11 @@ const ModalPremium = ({
                 </h3>
                 <p>
                     You will be entitled to a refund if the average
-                    precipitation is greater than the amount stated above for{" "}
-                    {simulation.days}{" "}
-                    {simulation.days > 1 ? "consecutive days" : "day"}, starting
-                    at {new Date(simulation.startDate).toLocaleDateString()}.
+                    precipitation in {simulation.placeName} is greater than the
+                    amount stated above for {simulation.days}{" "}
+                    {simulation.days > 1 ? "consecutive days" : "day"}, from{" "}
+                    {new Date(simulation.startDate).toLocaleDateString()} to{" "}
+                    {new Date(simulation.endDate).toLocaleDateString()}.
                     <br />
                     <br />
                     You get {simulation.amount} USD (100% refund) if the
