@@ -20,8 +20,7 @@ const transporter = nodemailer.createTransport({
 export const sendTestMail = async (customerEmail) => {
     try {
         const response = await transporter.sendMail({
-            sender: process.env.MAIL_SENDER,
-            from: process.env.MAIL_FROM,
+            from: process.env.MAIL_SENDER,
             to: customerEmail,
             subject: "Test Mail from AWS SES",
             html: `
