@@ -25,7 +25,7 @@ const ModalPremium = ({
                 </h2>
                 <h3>
                     <Image src={IconRain} width={25} height={25} alt="Wallet" />
-                    The historical average precipitation for this period of the
+                    The historical daily average precipitation for this period of the
                     year at this location is {simulation.avgPrec} mm.
                 </h3>
                 <p>

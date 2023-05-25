@@ -33,8 +33,8 @@ import { useRouter } from "next/router";
 import RainProductAbi from "../../utils/RainProduct.json";
 
 const createUseFormSchema = z.object({
-    fname: z.string().nonempty("Full name is required"),
-    txid: z.string().nonempty("Tax id is required"),
+    name: z.string().nonempty("Full name is required"),
+    doc: z.string().nonempty("Tax id is required"),
     email: z
         .string()
         .email("Email is required and needs to be a valid email address"),
@@ -43,10 +43,19 @@ const createUseFormSchema = z.object({
 const FormCheckout = ({ setSimulation, simulation }) => {
     const [activeButton, setActiveButton] = useState(0);
     const [submitting, setSubmitting] = useState(false);
+    const [customer, setCustomer] = useState(false);
     const [transaction, setTransaction] = useState("");
     const [step, setStep] = useState(0); // 1 = riskId / 2 = creating risk / 3 = risk found or created / 4 = approving / 5 = approved / 6 = creating policy / 7 = policy created
     const { address } = useAccount();
     const router = useRouter();
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm({
+        resolver: zodResolver(createUseFormSchema),
+    });
 
     const { data: riskId } = useContractRead({
         address: process.env.NEXT_PUBLIC_RAIN_PRODUCT_ADDRESS,
@@ -80,7 +89,7 @@ const FormCheckout = ({ setSimulation, simulation }) => {
         },
     });
 
-    const { data: transactionResult, isLoading } = useWaitForTransaction({
+    useWaitForTransaction({
         hash: transaction,
         onSuccess(data) {
             console.log("transaction success", data);
@@ -105,13 +114,13 @@ const FormCheckout = ({ setSimulation, simulation }) => {
         ],
     });
 
-    const { data: approveResult, write: approve } = useContractWrite({
+    const { write: approve } = useContractWrite({
         ...config,
         onError(error) {
             console.log("approve onError", error);
             setStep(3);
         },
-        onMutate({ args }) {
+        onMutate() {
             setSubmitting(true);
             setStep(4);
         },
@@ -122,23 +131,12 @@ const FormCheckout = ({ setSimulation, simulation }) => {
         },
     });
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm({
-        resolver: zodResolver(createUseFormSchema),
-    });
-
     async function createRisk() {
         if (submitting) {
             return;
         }
-        if (isLoading) {
-            return;
-        }
-        console.log("Creating risk...");
         setSubmitting(true);
+        console.log("Creating risk...");
         const response = await fetch("/api/risks", {
             method: "POST",
             headers: {
@@ -153,34 +151,37 @@ const FormCheckout = ({ setSimulation, simulation }) => {
         setStep(2);
     }
 
-    async function applyForPolicy(form) {
-        console.log(form);
+    async function applyForPolicy() {
+        console.log("applyForPolicy");
+        console.log(customer);
         if (submitting) {
             return;
         }
+        setSimulation({ ...simulation, ...customer });
         setSubmitting(true);
-        setSimulation({ ...simulation, ...form });
         console.log("Creating policy...");
+        setStep(6);
         const response = await fetch("/api/policies/apply", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                policyHolder: address,
                 premium: simulation.premium,
                 sumInsured: simulation.amount,
                 riskId,
+                customer: { ...customer, wallet: address },
             }),
         });
         const data = await response.json();
-        console.log("tx", data.tx);
-        setTransaction(data.tx.hash);
+        console.log("response", data);
+        //setTransaction(data.tx.hash);
         setSubmitting(false);
-        setStep(6);
+        setStep(7);
     }
 
-    function submit() {
+    function submit(form) {
+        setCustomer(form);
         if (activeButton > 0) {
             alert("Payment option not available");
             return;
@@ -188,8 +189,8 @@ const FormCheckout = ({ setSimulation, simulation }) => {
         if (submitting) {
             return;
         }
-        if (step <= 6) {
-            approve();
+        if (step <= 5) {
+            approve(form);
         }
     }
 
@@ -216,16 +217,16 @@ const FormCheckout = ({ setSimulation, simulation }) => {
                     <ItemFormCheckout>
                         <label>
                             Full name
-                            <input type="text" {...register("fname")} />
+                            <input type="text" {...register("name")} />
                         </label>
-                        {errors.fname && <span>{errors.fname.message}</span>}
+                        {errors.name && <span>{errors.name.message}</span>}
                     </ItemFormCheckout>
                     <ItemFormCheckout>
                         <label>
                             Tax ID
-                            <input type="text" {...register("txid")} />
+                            <input type="text" {...register("doc")} />
                         </label>
-                        {errors.txid && <span>{errors.txid.message}</span>}
+                        {errors.doc && <span>{errors.doc.message}</span>}
                     </ItemFormCheckout>
                     <ItemFormCheckout>
                         <label>

@@ -101,7 +101,6 @@ function preparePolicy(data) {
         city = { name: "Unknown" };
     }
     return {
-        stage: 1,
         processId: data.processId,
         riskId: data.riskId,
         city,
@@ -157,126 +156,128 @@ function prepareRisk(policyActive, data) {
 
 const PoliciesView = () => {
     const [policies, setPolicies] = useState([]);
-    const [policiesIds, setPolicieIds] = useState([]);
+    const [policiesIdx, setPoliciesIdx] = useState(null);
     const [claiming, setClaiming] = useState(false);
+    const [limit] = useState(10);
     const { address } = useAccount();
 
-    useContractRead({
-        address: process.env.NEXT_PUBLIC_RAIN_PRODUCT_ADDRESS,
-        abi: RainProductAbi,
-        functionName: "processIdsForHolder",
-        structuralSharing: (prev, next) => (prev === next ? prev : next),
-        args: [address],
-        onSuccess(data) {
-            setPolicieIds(data);
-        },
-    });
-
-    async function getRisk(riskId) {
-        console.log(`Pulling riskId ${riskId}...`);
+    async function getPoliceIds(walletAddress) {
+        console.log(`getPoliceIds for address ${address}...`);
         await readContract({
+            address: process.env.NEXT_PUBLIC_RAIN_PRODUCT_ADDRESS,
+            abi: RainProductAbi,
+            functionName: "processIdsForHolder",
+            args: [walletAddress],
+        }).then((data) => {
+            console.log("all policieIds", data);
+            setPoliciesIdx(Array(limit).fill().map((_, i) => data.length - 1 - i))
+        });
+    }
+
+    async function getPayout(policy) {
+        console.log(`Pulling details for policyId ${policy.processId}...`);
+        const payout = readContract({
+            address: process.env.NEXT_PUBLIC_INSTANCE_SERVICE_ADDRESS,
+            abi: InstanceServiceAbi,
+            functionName: "getPolicy",
+            args: [policy.processId],
+        })
+        return Promise.all([policy, payout])
+        .then(([policy, payout]) => {
+            console.log(`DONE! PAYOUT for policy ${policy.processId} is:`);
+            console.log(payout);
+            return {...policy, payout: preparePayout(payout)};
+        })
+    }
+
+    async function getApplication(policy) {
+        console.log(`Pulling application for policyId ${policy.processId}...`);
+        const application = readContract({
+            address: process.env.NEXT_PUBLIC_INSTANCE_SERVICE_ADDRESS,
+            abi: InstanceServiceAbi,
+            functionName: "getApplication",
+            args: [policy.processId],
+        })
+        return Promise.all([policy, application])
+        .then(([policy, application]) => {
+            console.log(`DONE! APPLICATION for policy ${policy.processId} is:`);
+            console.log(application);
+            return {...policy, application};;
+        });
+    }
+
+    async function getRisk(policy) {
+        console.log(`Pulling riskId ${policy.riskId}...`);
+        const risk = readContract({
             address: process.env.NEXT_PUBLIC_RAIN_PRODUCT_ADDRESS,
             abi: RainProductAbi,
             functionName: "getRisk",
             enabled: false,
-            args: [riskId],
-        }).then((risk) => {
-            console.log(`Done! Risk is:`);
+            args: [policy.riskId],
+        });
+        return Promise.all([policy, risk])
+        .then(([policy, risk]) => {
+            console.log(`DONE! RISK for policy ${policy.processId} is:`);
             console.log(risk);
-            const policy = policies.find((item) => item.riskId === risk.id);
-            if (policy) {
-                console.log(`risk policy found:`);
-                console.log(policy);
-                addPolicy({
-                    ...policy,
-                    risk: prepareRisk(policy.isActive, risk),
-                    stage: 2,
-                });
-            } else {
-                console.log(`risk policy NOT found!`);
-            }
-        });
+            return {...policy, risk: prepareRisk(policy.isActive, risk)};
+        })
     }
 
-    async function getApplication(policyId) {
-        console.log(`Pulling application for policyId ${policyId}...`);
-        await readContract({
-            address: process.env.NEXT_PUBLIC_INSTANCE_SERVICE_ADDRESS,
-            abi: InstanceServiceAbi,
-            functionName: "getApplication",
-            args: [policyId],
-        }).then((application) => {
-            console.log(`Done! Application is:`);
-            console.log(application);
-            const policy = policies.find((item) => item.processId === policyId);
-            if (policy) {
-                console.log(`application policy found:`);
-                console.log(policy);
-                addPolicy({
-                    ...policy,
-                    application,
-                    stage: 3,
-                });
-            } else {
-                console.log(`application policy NOT found!`);
-            }
-        });
-    }
-
-    async function getPayout(policyId) {
-        console.log(`Pulling details for policyId ${policyId}...`);
-        await readContract({
-            address: process.env.NEXT_PUBLIC_INSTANCE_SERVICE_ADDRESS,
-            abi: InstanceServiceAbi,
-            functionName: "getPolicy",
-            args: [policyId],
-        }).then((details) => {
-            console.log(`Done! Policy details is:`);
-            console.log(details);
-            const policy = policies.find((item) => item.processId === policyId);
-            if (policy) {
-                console.log(`details policy found:`);
-                console.log(policy);
-                addPolicy({
-                    ...policy,
-                    payout: preparePayout(details),
-                    stage: 4,
-                });
-            } else {
-                console.log(`application policy NOT found!`);
-            }
-        });
-    }
-
-    function addPolicy(newPolicy) {
-        console.log(`Adding Policy...`);
-        setPolicies((oldArray) => [
-            // eslint-disable-next-line no-undef
-            ...new Map(
-                [...oldArray, newPolicy].map((item) => [
-                    item["processId"],
-                    item,
-                ])
-            ).values(),
-        ]);
+    async function pullPolicy(walletAddress, idx) {
+        console.log(`Pulling policy idx ${idx}...`);
+        return readContract({
+            address: process.env.NEXT_PUBLIC_RAIN_PRODUCT_ADDRESS,
+            abi: RainProductAbi,
+            functionName: "processForHolder",
+            args: [walletAddress, idx],
+        })
+        .then((policy) => {
+            console.log(`DONE! Policy ${idx} is:`);
+            console.log(policy);
+            return preparePolicy(policy);
+        })
     }
 
     async function getPolicies() {
-        var idx = 0;
-        for (let policyId of policiesIds) {
-            console.log(`Pulling policyId ${policyId} idx ${idx}...`);
-            await readContract({
-                address: process.env.NEXT_PUBLIC_RAIN_PRODUCT_ADDRESS,
-                abi: RainProductAbi,
-                functionName: "processForHolder",
-                args: [address, idx],
-            }).then(async (policy) => {
-                console.log(`DONE! Policy ${idx} is:`);
-                console.log(policy);
-                addPolicy(preparePolicy(policy));
-            });
-            idx += 1;
-        }
+        console.log(`Pulling policies for address ${address} with idx ${policiesIdx}...`)
+        policiesIdx.forEach((idx) => {
+            pullPolicy(address, idx)
+            .then(getRisk)
+            .then(getApplication)
+            .then(getPayout)
+            .then((policy) => {
+                addPolicy(policy);
+            })
+        });
+    }
+
+    // function isDuplicate(array, obj) {
+    //     console.log("isDuplicate")
+    //     for (let i = 0; i < array.length; i++) {
+    //         if (array[i].processId === obj.processId) {
+    //             console.log("true")
+    //             return true;
+    //         }
+    //     }
+    //     console.log("false")
+    //     return false;
+    // }
+
+    function addPolicy(newPolicy) {
+        console.log(`Adding Policy...`);
+        // if (!isDuplicate(policies, newPolicy)) {
+            setPolicies((oldArray) => [
+                // eslint-disable-next-line no-undef
+                ...new Map(
+                    [...oldArray, newPolicy].map((item) => [
+                        item["processId"],
+                        item,
+                    ])
+                ).values(),
+            ]);
+        // } else {
+        //     console.log(`Policy duplicated`);
+        // }
     }
 
     async function processPolicy(endpoint, policy) {
@@ -320,28 +321,19 @@ const PoliciesView = () => {
     }
 
     useEffect(() => {
-        console.log("policiesIds is:", policiesIds);
-        getPolicies();
-    }, [policiesIds]);
+        if (!policiesIdx) {
+            getPoliceIds(address);
+        }
+    }, [address, policiesIdx]);
 
-    // useEffect(() => {
-    //     console.log("riskId is:", riskId);
-    //     if (riskId !== null) {
-    //         getRisk();
-    //     }
-    // }, [riskId]);
+    useEffect(() => {
+        if (policiesIdx) {
+            getPolicies()
+        }
+    }, [address, policiesIdx]);
 
     useEffect(() => {
         console.log("policies is:", policies);
-        for (let policy of policies) {
-            if (policy.stage == 1) {
-                getRisk(policy.riskId);
-            } else if (policy.stage == 2) {
-                getApplication(policy.processId);
-            } else if (policy.stage == 3) {
-                getPayout(policy.processId);
-            }
-        }
     }, [policies]);
 
     return (

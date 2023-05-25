@@ -1,5 +1,4 @@
-import RainProductAbi from "../../../utils/RainProduct.json";
-import { ethers } from "ethers";
+import rainProductContract from "../../../lib/rainProduct";
 
 export default async function handler(req, res) {
     // POST /api/policies/process
@@ -7,19 +6,6 @@ export default async function handler(req, res) {
     // inputs: policyId (bytes32)
     if (req.method === "POST") {
         var { policyId } = req.body;
-
-        const provider = new ethers.JsonRpcProvider(
-            process.env.NEXT_PUBLIC_INFURA_URL
-        );
-        const signer = new ethers.Wallet(
-            process.env.INSURER_PRIVATE_KEY,
-            provider
-        );
-        const rainProductContract = new ethers.Contract(
-            process.env.NEXT_PUBLIC_RAIN_PRODUCT_ADDRESS,
-            RainProductAbi,
-            signer
-        );
 
         try {
             const tx = await rainProductContract.triggerOracle(policyId);

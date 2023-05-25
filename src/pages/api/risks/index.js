@@ -1,5 +1,4 @@
-import RainProductAbi from "../../../utils/RainProduct.json";
-import { ethers } from "ethers";
+import rainProductContract from "../../../lib/rainProduct";
 
 export default async function handler(req, res) {
     // POST /api/risks
@@ -11,19 +10,6 @@ export default async function handler(req, res) {
 
         const trigger = 0;
         const exit = 1;
-
-        const provider = new ethers.JsonRpcProvider(
-            process.env.NEXT_PUBLIC_INFURA_URL
-        );
-        const signer = new ethers.Wallet(
-            process.env.INSURER_PRIVATE_KEY,
-            provider
-        );
-        const rainProductContract = new ethers.Contract(
-            process.env.NEXT_PUBLIC_RAIN_PRODUCT_ADDRESS,
-            RainProductAbi,
-            signer
-        );
 
         try {
             const coordinatesMultiplier = Number(
@@ -40,8 +26,8 @@ export default async function handler(req, res) {
                 placeId,
                 lat * coordinatesMultiplier,
                 lng * coordinatesMultiplier,
-                trigger * percentageMultiplier,
-                exit * percentageMultiplier,
+                Number(process.env.RISK_TRIGGER) * percentageMultiplier,
+                Number(process.env.RISK_EXIT) * percentageMultiplier,
                 Math.round(avgPrec)
             );
             console.log(tx);
