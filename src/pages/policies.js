@@ -251,33 +251,17 @@ const PoliciesView = () => {
         });
     }
 
-    // function isDuplicate(array, obj) {
-    //     console.log("isDuplicate")
-    //     for (let i = 0; i < array.length; i++) {
-    //         if (array[i].processId === obj.processId) {
-    //             console.log("true")
-    //             return true;
-    //         }
-    //     }
-    //     console.log("false")
-    //     return false;
-    // }
-
     function addPolicy(newPolicy) {
         console.log(`Adding Policy...`);
-        // if (!isDuplicate(policies, newPolicy)) {
-            setPolicies((oldArray) => [
-                // eslint-disable-next-line no-undef
-                ...new Map(
-                    [...oldArray, newPolicy].map((item) => [
-                        item["processId"],
-                        item,
-                    ])
-                ).values(),
-            ]);
-        // } else {
-        //     console.log(`Policy duplicated`);
-        // }
+        setPolicies((oldArray) => [
+            // eslint-disable-next-line no-undef
+            ...new Map(
+                [...oldArray, newPolicy].map((item) => [
+                    item["processId"],
+                    item,
+                ])
+            ).values(),
+        ]);
     }
 
     async function processPolicy(endpoint, policy) {
@@ -321,14 +305,17 @@ const PoliciesView = () => {
     }
 
     useEffect(() => {
-        if (!policiesIdx) {
+        if (address && !policiesIdx) {
             getPoliceIds(address);
         }
     }, [address, policiesIdx]);
 
     useEffect(() => {
-        if (policiesIdx) {
+        if (address && policiesIdx) {
             getPolicies()
+        }
+        if (!address) {
+            setPolicies([]);
         }
     }, [address, policiesIdx]);
 
@@ -340,7 +327,7 @@ const PoliciesView = () => {
         <Layout>
             <Policies>
                 <h2>Policies</h2>
-
+                {!address && "Please connect your wallet to see your policies"}
                 <Container>
                     {policies.map((item) => (
                         <ContainerItem key={item.processId}>

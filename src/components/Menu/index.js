@@ -2,7 +2,12 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { MenuNav, MenuContainer, MenuItem } from "./styles";
-import { navigationLinks } from "../../utils/menulist";
+
+const navigationLinks = [
+    { label: "Home", path: ["/"], img: "/icons/icon-home.png" },
+    { label: "Policies", path: ["/policies"], img: "/icons/icon-policies.png" },
+    { label: "Stake", path: ["/stake"], img: "/icons/icon-safe.png" },
+];
 
 export function Menu() {
     const router = useRouter();

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useAccount } from "wagmi";
 import Modal from "../ModalTemplate/modal";
 import { ModalCPremium } from "./styles";
 import IconRain from "../../../public/icons/icon-rain-blue.png";
@@ -9,6 +10,17 @@ const ModalPremium = ({
     simulation,
     setModalCheckoutOpen,
 }) => {
+    const { isConnected } = useAccount()
+
+    function buy() {
+        if(isConnected) {
+            setModalCheckoutOpen(true);
+            setModalOpen(false);
+        } else {
+            alert("Please connect your wallet to continue");
+        }
+    }
+
     return (
         <Modal
             isOpen={modalOpen}
@@ -44,12 +56,7 @@ const ModalPremium = ({
                     You get a proportional refund if the amount is in between
                     the two values.
                 </p>
-                <button
-                    onClick={() => {
-                        setModalCheckoutOpen(true);
-                        setModalOpen(false);
-                    }}
-                >
+                <button onClick={() => buy()}>
                     Buy Protection
                 </button>
             </ModalCPremium>

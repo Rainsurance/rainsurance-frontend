@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { destinations } from "../../utils/destinations";
 import { ethers } from "ethers";
 import slugify from "react-slugify";
+import { useAccount } from "wagmi";
 
 const createUseFormSchema = z.object({
     destination: z.string().nonempty("Destination city is required"),
@@ -32,12 +33,17 @@ function FormCalculate({ setModalOpen, setSimulation }) {
     });
     const [startDate, setStartDate] = useState(null);
     const [calculating, setCalculating] = useState(false);
+    const { isConnected } = useAccount();
 
     function s2b(input) {
         return ethers.encodeBytes32String(slugify(input));
     }
 
     async function calculatePremium(form) {
+        if (!isConnected) {
+            alert("Please connect your wallet to continue");
+            return;
+        }
         if (calculating) {
             return;
         }
