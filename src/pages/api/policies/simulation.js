@@ -61,7 +61,7 @@ export default async function handler(req, res) {
 
     if(process.env.SIMULATION_PROVIDER == "meteoblue") {
 
-        const years = 10;
+        const years = process.env.METEOBLUE_YEARS;
         let pastStartDate = startDate;
         let pastEndDate = endDate;
         
@@ -96,7 +96,7 @@ export default async function handler(req, res) {
     // X = Dias selecionados pelo usuário * NEXT_PUBLIC_RISK_DAYS_PERCENTAGE
     // Ou ao invés de deixar fixo, podemos deixar o usuário escolher X no frontend
     // TODO: devemos salvar o valor de X na apólice no smart contract
-    // Distribuição Binominal:
+    // Distribuição Binominal
     // Ref: https://www.ime.usp.br/~salles/fatec/estatistica/material_apoio/ExerciciosResolvidosBinomial.pdf
     // Ref: https://thisancog.github.io/statistics.js/inc/distributions.html#binomialdistribution
     
