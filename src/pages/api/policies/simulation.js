@@ -61,11 +61,10 @@ export default async function handler(req, res) {
 
     if(process.env.SIMULATION_PROVIDER == "meteoblue") {
 
-        const years = process.env.METEOBLUE_YEARS;
         let pastStartDate = startDate;
         let pastEndDate = endDate;
         
-        for (let i = 1; i <= years; i++) {
+        for (let i = 1; i <= Number(process.env.METEOBLUE_YEARS); i++) {
             pastStartDate = startDate - (i * dayMiliseconds * 365)
             pastEndDate = endDate - (i * dayMiliseconds * 365)
             // convert timestamp to date in format yyyy-mm-dd
