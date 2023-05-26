@@ -8,13 +8,15 @@ const policySchema = new mongoose.Schema(
         processId: {
             type: String,
         },
-        riskId: {
-            type: String,
+        customer :{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Customer'
         },
-        customerId: {
-            type: String,
+        risk :{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Risk'
         },
-        userAddress: {
+        walletAddress: {
             type: String,
         },
         premium: {
@@ -22,12 +24,12 @@ const policySchema = new mongoose.Schema(
         },
         sumInsured: {
             type: Number,
-        },
+        }
     },
     { timestamps: true }
 );
 
 const Policy =
-    mongoose.models.policies || mongoose.model("policies", policySchema);
+    mongoose.models.Policy || mongoose.model("Policy", policySchema);
 
 export default Policy;

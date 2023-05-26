@@ -54,8 +54,7 @@ function FormCalculate({ setModalOpen, setSimulation }) {
             amount: form.amount,
             lat: place.lat,
             lng: place.lng,
-            placeName: place.name,
-            placeId,
+            place: {...place, placeId}
         };
         setCalculating(true);
         const response = await fetch("/api/policies/simulation", {
@@ -66,7 +65,6 @@ function FormCalculate({ setModalOpen, setSimulation }) {
             body: JSON.stringify(simulation),
         });
         const data = await response.json();
-        console.log({ ...simulation, ...data });
         setSimulation({ ...simulation, ...data });
         setModalOpen(true);
         setCalculating(false);

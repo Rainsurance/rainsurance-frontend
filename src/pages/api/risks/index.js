@@ -1,3 +1,6 @@
+import { v4 } from "uuid";
+import connectDB from "../../../lib/connectDB";
+import Risk from "../../../lib/schemas/riskSchema";
 import rainProductContract from "../../../lib/rainProduct";
 
 export default async function handler(req, res) {
@@ -6,10 +9,35 @@ export default async function handler(req, res) {
     // inputs: placeId (bytes32), startDate (uint256), endDate (uint256), lat (int256), long (int256), trigger (uint256), exit (uint256), aph (uint256)
     // output: riskId (bytes32)
     if (req.method === "POST") {
-        var { placeId, startDate, endDate, lat, lng, avgPrec } = req.body;
+        var { place, startDate, endDate, days, lat, lng, avgPrec, riskId } = req.body;
 
         const trigger = 0;
         const exit = 1;
+
+        await connectDB();
+
+        try {
+            var riskDb = await Risk.findOne({ riskId });
+            if (!riskDb) {
+                riskDb = new Risk({
+                    id: v4(), 
+                    riskId,
+                    startDate,
+                    endDate,
+                    days,
+                    place,
+                    aph: avgPrec,
+                    trigger,
+                    exit,
+                });
+                await riskDb.save();
+            }
+            console.log("risk", riskDb);
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ error });
+            return;
+        } 
 
         try {
             const coordinatesMultiplier = Number(
@@ -23,7 +51,7 @@ export default async function handler(req, res) {
             const tx = await rainProductContract.createRisk(
                 startDate / 1000,
                 endDate / 1000,
-                placeId,
+                place.placeId,
                 lat * coordinatesMultiplier,
                 lng * coordinatesMultiplier,
                 Number(process.env.RISK_TRIGGER) * percentageMultiplier,

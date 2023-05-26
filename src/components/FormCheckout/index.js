@@ -57,17 +57,19 @@ const FormCheckout = ({ setSimulation, simulation }) => {
         resolver: zodResolver(createUseFormSchema),
     });
 
-    const { data: riskId } = useContractRead({
+    const { data: riskId, refetch: getRiskId } = useContractRead({
         address: process.env.NEXT_PUBLIC_RAIN_PRODUCT_ADDRESS,
         abi: RainProductAbi,
         functionName: "getRiskId",
+        enabled: false,
         args: [
-            simulation.placeId,
+            simulation.place?.placeId,
             simulation.startDate / 1000,
             simulation.endDate / 1000,
         ],
-        onSuccess(data) {
-            console.log("getRiskId success", data);
+        onSuccess(riskId) {
+            console.log("getRiskId success", riskId);
+            setSimulation({ ...simulation, riskId });
             setStep(1);
         },
     });
@@ -157,6 +159,7 @@ const FormCheckout = ({ setSimulation, simulation }) => {
         if (submitting) {
             return;
         }
+        console.log({ ...simulation, ...customer })
         setSimulation({ ...simulation, ...customer });
         setSubmitting(true);
         console.log("Creating policy...");
@@ -196,8 +199,12 @@ const FormCheckout = ({ setSimulation, simulation }) => {
 
     useEffect(() => {
         console.log("current step is: ", step);
+        console.log("simulation: ", simulation);
         console.log("riskId: ", riskId);
         console.log("risk: ", risk);
+        if (step == 0) {
+            getRiskId();
+        }
         if (step == 1) {
             getRisk();
         }

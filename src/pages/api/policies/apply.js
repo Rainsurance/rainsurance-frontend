@@ -4,7 +4,9 @@ import { v4 } from "uuid";
 import connectDB from "../../../lib/connectDB";
 import Policy from "../../../lib/schemas/policySchema";
 import Customer from "../../../lib/schemas/customerSchema";
+import Risk from "../../../lib/schemas/riskSchema";
 import rainProductContract from "../../../lib/rainProduct";
+import { sendPolicyMail } from "../../../lib/aws-ses";
 
 export default async function handler(req, res) {
     // POST /api/policies/apply
@@ -18,10 +20,38 @@ export default async function handler(req, res) {
 
         await connectDB();
 
+        try {
+            var customerDb = await Customer.findOne({ email: customer.email });
+            if (!customerDb) {
+                customerDb = new Customer({ ...customer, id: v4() });
+                await customerDb.save();
+            }
+            console.log("customer", customerDb);
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ error });
+            return;
+        }
+        
+        try {
+            var riskDb = await Risk.findOne({ riskId });
+            if (!riskDb) {
+                const errorMessage = "risk not found";
+                console.log(errorMessage);
+                res.status(500).json({ error: errorMessage });  
+            }
+            console.log("risk", riskDb);
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ error });
+            return;
+        }
+
         const premiumBigNumber = ethers.parseUnits(premium, 6);
         const sumInsuredBigNumber = ethers.parseUnits(sumInsured, 6);
 
         let processId = "";
+
         try {
             const tx = await rainProductContract.applyForPolicy(
                 customer.wallet,
@@ -37,31 +67,26 @@ export default async function handler(req, res) {
         console.log("processId", processId);
 
         try {
-            var customerDb = await Customer.findOne({ email: customer.email });
-            if (!customerDb) {
-                customerDb = new Customer({ ...customer, id: v4() });
-                await customerDb.save();
-            }
-        } catch (error) {
-            console.log(error);
-            res.status(500).json({ error });
-        }
-        console.log("customer", customerDb);
-
-        try {
             const newPolicy = new Policy({
                 id: v4(),
                 processId,
-                riskId,
-                customerId: customerDb.id,
+                risk: riskDb,
+                customer: customerDb,
+                walletAddress: customer.wallet,
                 premium,
                 sumInsured,
             });
             await newPolicy.save();
+            console.log("newPolicy", newPolicy);
+
+            await sendPolicyMail(newPolicy);
+
             res.status(200).json({ newPolicy });
+
         } catch (error) {
             console.log(error);
             res.status(500).json({ error });
         }
+
     }
 }

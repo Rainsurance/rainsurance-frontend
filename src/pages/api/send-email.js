@@ -1,6 +1,8 @@
 import { sendTestMail } from "../../lib/aws-ses";
 
 export default async function handler(req, res) {
-    const result = await sendTestMail("andreteves@gmail.com");
+    const { query } = req;
+
+    const result = await sendTestMail(query.email);
     res.json(result);
 }

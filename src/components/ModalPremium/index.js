@@ -30,7 +30,7 @@ const ModalPremium = ({
                 </h3>
                 <p>
                     You will be entitled to a refund if the average
-                    precipitation in {simulation.placeName} is greater than the
+                    precipitation in {simulation.place?.name} is greater than the
                     amount stated above for {simulation.days}{" "}
                     {simulation.days > 1 ? "consecutive days" : "day"}, from{" "}
                     {new Date(simulation.startDate).toLocaleDateString()} to{" "}
