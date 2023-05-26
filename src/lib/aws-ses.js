@@ -1,6 +1,9 @@
 // aws-ses.js
 import * as aws from "@aws-sdk/client-ses";
 import * as nodemailer from "nodemailer";
+import { renderToStaticMarkup } from 'react-dom/server';
+import PolicyConditions from "../components/PolicyConditions";
+
 const pluralize = require("pluralize");
 
 const ses = new aws.SES({
@@ -60,25 +63,18 @@ export const sendPolicyMail = async (policy) => {
                             </p>
                             <p><b><u>Policy conditions</u>:</b></p>
                             <p>
-                                The historical daily average precipitation for this period of the
-                                year at this location is ${policy.risk.aph} mm.
+                                The historical average daily precipitation for this period of the year at this location is ${policy.risk.aph} mm.
                             </p>
-                            <p>
-                                You will be entitled to a refund if the average${" "}
-                                precipitation within the range of 10km of ${policy.risk.place.name}${" "}
-                                is greater than the amount stated above for at least ${policy.risk.days}${" "}
-                                ${pluralize("consecutive day", policy.risk.days)} from${" "}
-                                ${new Date(policy.risk.startDate).toLocaleDateString()} to${" "}
-                                ${new Date(policy.risk.endDate).toLocaleDateString()}.
-                            </p>
-                            <p>
-                                You get ${USDollar.format(policy.sumInsured)} (100% refund) if the
-                                rainfall is greater than or equal to 2x the value shown
-                                above (${2 * policy.risk.aph} mm).
-                                <br />
-                                You get a proportional refund if the amount is in between
-                                the two values.
-                            </p>
+                            ${renderToStaticMarkup(
+                                <PolicyConditions 
+                                    place={policy.risk.place.name}
+                                    startDate={policy.risk.startDate}
+                                    endDate={policy.risk.endDate}
+                                    days={policy.risk.days}
+                                    amount={policy.sumInsured}
+                                    aph={policy.risk.aph}
+                                />)
+                            }
                             <p>
                                 Boa Viagem! <br />
                                 Equipe Rainsurance

@@ -3,6 +3,7 @@ import { useAccount } from "wagmi";
 import Modal from "../ModalTemplate/modal";
 import { ModalCPremium } from "./styles";
 import IconRain from "../../../public/icons/icon-rain-blue.png";
+import PolicyConditions from "../PolicyConditions";
 
 const ModalPremium = ({
     modalOpen,
@@ -37,25 +38,17 @@ const ModalPremium = ({
                 </h2>
                 <h3>
                     <Image src={IconRain} width={25} height={25} alt="Wallet" />
-                    The historical daily average precipitation for this period of the
+                    The historical average daily precipitation for this period of the
                     year at this location is {simulation.avgPrec} mm.
                 </h3>
-                <p>
-                    You will be entitled to a refund if the average
-                    precipitation in {simulation.place?.name} is greater than the
-                    amount stated above for {simulation.days}{" "}
-                    {simulation.days > 1 ? "consecutive days" : "day"}, from{" "}
-                    {new Date(simulation.startDate).toLocaleDateString()} to{" "}
-                    {new Date(simulation.endDate).toLocaleDateString()}.
-                    <br />
-                    <br />
-                    You get {simulation.amount} USD (100% refund) if the
-                    rainfall is greater than or equal to 2x the value shown
-                    above ({2 * simulation.avgPrec} mm).
-                    <br />
-                    You get a proportional refund if the amount is in between
-                    the two values.
-                </p>
+                <PolicyConditions 
+                    place={simulation.place?.name}
+                    startDate={simulation.startDate}
+                    endDate={simulation.endDate}
+                    days={simulation.days}
+                    amount={simulation.amount}
+                    aph={simulation.avgPrec}
+                />
                 <button onClick={() => buy()}>
                     Buy Protection
                 </button>
