@@ -158,6 +158,7 @@ const PoliciesView = () => {
     const [policies, setPolicies] = useState([]);
     const [policiesIdx, setPoliciesIdx] = useState(null);
     const [claiming, setClaiming] = useState(false);
+    const [connectMessage, setConnectMessage] = useState("");
     const [limit] = useState(10);
     const { address } = useAccount();
 
@@ -170,7 +171,11 @@ const PoliciesView = () => {
             args: [walletAddress],
         }).then((data) => {
             console.log("all policieIds", data);
-            setPoliciesIdx(Array(limit).fill().map((_, i) => data.length - 1 - i))
+            if(data.length > 0) {
+                setPoliciesIdx(Array(limit).fill().map((_, i) => data.length - 1 - i));
+            } else {
+                setPoliciesIdx(null);
+            }
         });
     }
 
@@ -311,11 +316,17 @@ const PoliciesView = () => {
     }, [address, policiesIdx]);
 
     useEffect(() => {
-        if (address && policiesIdx) {
-            getPolicies()
-        }
         if (!address) {
+            setConnectMessage("Please connect your wallet to see your policies");
             setPolicies([]);
+            setPoliciesIdx(null);
+        }
+        if (address && !policiesIdx) {
+            setConnectMessage("No policy was found for this address");
+        }
+        if (address && policiesIdx) {
+            setConnectMessage("");
+            getPolicies()
         }
     }, [address, policiesIdx]);
 
@@ -327,7 +338,7 @@ const PoliciesView = () => {
         <Layout>
             <Policies>
                 <h2>Policies</h2>
-                {!address && "Please connect your wallet to see your policies"}
+                <div>{ connectMessage }</div>
                 <Container>
                     {policies.map((item) => (
                         <ContainerItem key={item.processId}>
