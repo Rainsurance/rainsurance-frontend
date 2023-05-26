@@ -89,7 +89,7 @@ function FormCalculate({ setModalOpen, setSimulation }) {
                         <option value="" hidden>
                             Select Destination
                         </option>
-                        {destinations.map((item) => (
+                        {destinations.filter(dest => dest.enabled).map((item) => (
                             <option key={item.id} value={item.id}>
                                 {item.name}
                             </option>

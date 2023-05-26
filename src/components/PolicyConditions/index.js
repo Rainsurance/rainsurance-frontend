@@ -6,23 +6,24 @@ let USDollar = new Intl.NumberFormat('en-US', {
 });
 
 const PolicyConditions = ({place, days, startDate, endDate, amount, aph}) => {
+    const rainyDays = Math.ceil(days * Number(process.env.NEXT_PUBLIC_RISK_DAYS_PERCENTAGE));
     return (
         <>
             <p>
-                You will be entitled to a refund if the average{" "}
+                You will be entitled to a refund if the average daily{" "}
                 precipitation within the range of 10km of {place}{" "}
-                is greater than the amount stated above for at least {days}{" "}
-                {pluralize("consecutive day", Number(days))} from{" "}
-                {new Date(startDate).toLocaleDateString()} to{" "}
+                is greater than the volume stated above for at least {rainyDays}{" "}
+                {pluralize("day", rainyDays)} between{" "}
+                {new Date(startDate).toLocaleDateString()} and{" "}
                 {new Date(endDate).toLocaleDateString()}.
             </p>
             <p>
                 You get {USDollar.format(amount)} (100% refund) if the{" "}
-                rainfall is greater than or equal to 2x the value shown{" "}
-                above ({2 * aph} mm).
+                rainfall volume is greater than or equal to 2x the value{" "}
+                shown above ({2 * aph} mm).
                 <br />
-                You get a proportional refund if the amount is in between{" "}
-                the two values.
+                You get a proportional refund if the rainfall volume is in{" "} 
+                between the two values.
             </p>
         </>
     );
