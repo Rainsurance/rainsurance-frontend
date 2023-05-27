@@ -111,7 +111,7 @@ export default async function handler(req, res) {
 
     //sum the probability of k or more days of rain
     let binProb = 0;
-    for (let i = k; i < n; i++) {
+    for (let i = k; i <= n; i++) {
         binProb += binProbDistribution[i];
     }
 
