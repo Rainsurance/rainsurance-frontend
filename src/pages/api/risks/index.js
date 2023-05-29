@@ -40,9 +40,10 @@ export default async function handler(req, res) {
         } 
 
         try {
-            const coordinatesMultiplier = Number(
-                await rainProductContract.getCoordinatesMultiplier()
-            );
+            // const coordinatesMultiplier = Number(
+            //     await rainProductContract.getCoordinatesMultiplier()
+            // );
+            const coordinatesMultiplier =  Number(process.env.COORD_MULTIPLIER)
 
             const percentageMultiplier = Number(
                 await rainProductContract.getPercentageMultiplier()
@@ -52,8 +53,8 @@ export default async function handler(req, res) {
                 startDate / 1000,
                 endDate / 1000,
                 place.placeId,
-                lat * coordinatesMultiplier,
-                lng * coordinatesMultiplier,
+                (lat * coordinatesMultiplier).toFixed(0),
+                (lng * coordinatesMultiplier).toFixed(0),
                 Number(process.env.RISK_TRIGGER) * percentageMultiplier,
                 Number(process.env.RISK_EXIT) * percentageMultiplier,
                 Math.round(avgPrec)

@@ -33,9 +33,9 @@ const historybasic = async (lat, long, startdate, enddate) => {
         const precProbability = rainyDays / days;
         // console.log(`precProbability: ${precProbability}`);
 
-        return {prec: precipitationAvgRounded, precProbability, error: false};
+        return {prec: precipitationAvgRounded, precProbability, precDays: rainyDays ,error: false};
     } else {
-        return {prec: 0, precProbability: 0, error: true,  error_message: data["error_message"]};
+        return {prec: 0, precProbability: 0, precDays: 0, error: true, error_message: data["error_message"]};
     }
 
 };

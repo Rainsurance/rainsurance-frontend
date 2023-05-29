@@ -18,12 +18,12 @@ import { infuraProvider } from "@wagmi/core/providers/infura";
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
     [
-        mainnet,
-        polygon,
-        optimism,
-        arbitrum,
+        // mainnet,
+        // polygon,
+        // optimism,
+        // arbitrum,
         ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === "true"
-            ? [goerli, polygonMumbai]
+            ? [polygonMumbai]
             : []),
     ],
     [

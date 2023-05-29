@@ -71,6 +71,7 @@ function FormCalculate({ setModalOpen, setSimulation }) {
             body: JSON.stringify(simulation),
         });
         const data = await response.json();
+        console.log({ ...simulation, ...data });
         setSimulation({ ...simulation, ...data });
         setModalOpen(true);
         setCalculating(false);

@@ -9,7 +9,7 @@ const Header = () => {
       <Container>
         <h1>Rainsurance</h1> 
         <Menu />
-        <ConnectButton accountStatus="address" showBalance={false}/>
+        <ConnectButton accountStatus="address" showBalance={true}/>
       </Container>
    </>
   );
