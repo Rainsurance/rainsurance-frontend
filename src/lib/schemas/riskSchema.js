@@ -32,13 +32,13 @@ const riskSchema = new mongoose.Schema(
         endDate: {
             type: Date,
         },
-        days: {
+        precDays: {
             type: Number,
         },
         place: {
             type: placeSchema,
         },
-        aph: {
+        precHist: {
             type: Number,
         },
         trigger: {
@@ -47,7 +47,10 @@ const riskSchema = new mongoose.Schema(
         exit: {
             type: Number,
         },
-        aaay: {
+        precActual: {
+            type: Number,
+        },
+        precDaysActual: {
             type: Number,
         },
         payoutPercentage: {

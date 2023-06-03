@@ -6,7 +6,7 @@ import rainProductContract from "../../../lib/rainProduct";
 export default async function handler(req, res) {
     // POST /api/risks
     // RainProduct createRisk
-    // inputs: placeId (bytes32), startDate (uint256), endDate (uint256), lat (int256), long (int256), trigger (uint256), exit (uint256), aph (uint256)
+    // inputs: placeId (bytes32), startDate (uint256), endDate (uint256), lat (int256), long (int256), trigger (uint256), exit (uint256), precHist (uint256)
     // output: riskId (bytes32)
     if (req.method === "POST") {
         var { place, startDate, endDate, days, lat, lng, avgPrec, riskId } = req.body;
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
                     endDate,
                     days,
                     place,
-                    aph: avgPrec,
+                    precHist: avgPrec,
                     trigger,
                     exit,
                 });
@@ -44,7 +44,7 @@ export default async function handler(req, res) {
             //     await rainProductContract.getCoordinatesMultiplier()
             // );
             const coordinatesMultiplier =  Number(process.env.COORD_MULTIPLIER)
-
+            const precipitationMultiplier = Number(process.env.PRECIPITATION_MULTIPLIER)
             const percentageMultiplier = Number(
                 await rainProductContract.getPercentageMultiplier()
             );
@@ -57,7 +57,7 @@ export default async function handler(req, res) {
                 (lng * coordinatesMultiplier).toFixed(0),
                 Number(process.env.RISK_TRIGGER) * percentageMultiplier,
                 Number(process.env.RISK_EXIT) * percentageMultiplier,
-                Math.round(avgPrec)
+                Math.round(avgPrec) * precipitationMultiplier
             );
             console.log(tx);
             res.status(200).json({ tx });

@@ -1,0 +1,1852 @@
+[{
+    "inputs": [{
+            "internalType": "bytes32",
+            "name": "productName",
+            "type": "bytes32"
+        },
+        {
+            "internalType": "address",
+            "name": "registry",
+            "type": "address"
+        },
+        {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+        },
+        {
+            "internalType": "uint256",
+            "name": "oracleId",
+            "type": "uint256"
+        },
+        {
+            "internalType": "uint256",
+            "name": "riskpoolId",
+            "type": "uint256"
+        },
+        {
+            "internalType": "address",
+            "name": "insurer",
+            "type": "address"
+        }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "version",
+        "type": "uint8"
+    }],
+    "name": "Initialized",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+    }],
+    "name": "LogComponentApproved",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+    }],
+    "name": "LogComponentArchived",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+            "indexed": false,
+            "internalType": "bytes32",
+            "name": "componentName",
+            "type": "bytes32"
+        },
+        {
+            "indexed": false,
+            "internalType": "enum IComponent.ComponentType",
+            "name": "componentType",
+            "type": "uint8"
+        },
+        {
+            "indexed": false,
+            "internalType": "address",
+            "name": "componentAddress",
+            "type": "address"
+        },
+        {
+            "indexed": false,
+            "internalType": "address",
+            "name": "registryAddress",
+            "type": "address"
+        }
+    ],
+    "name": "LogComponentCreated",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+    }],
+    "name": "LogComponentDeclined",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+    }],
+    "name": "LogComponentPaused",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+            "indexed": false,
+            "internalType": "bytes32",
+            "name": "componentName",
+            "type": "bytes32"
+        },
+        {
+            "indexed": false,
+            "internalType": "enum IComponent.ComponentType",
+            "name": "componentType",
+            "type": "uint8"
+        },
+        {
+            "indexed": false,
+            "internalType": "address",
+            "name": "componentAddress",
+            "type": "address"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "id",
+            "type": "uint256"
+        }
+    ],
+    "name": "LogComponentProposed",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+    }],
+    "name": "LogComponentResumed",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "id",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "enum IComponent.ComponentState",
+            "name": "stateOld",
+            "type": "uint8"
+        },
+        {
+            "indexed": false,
+            "internalType": "enum IComponent.ComponentState",
+            "name": "stateNew",
+            "type": "uint8"
+        }
+    ],
+    "name": "LogComponentStateChanged",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+    }],
+    "name": "LogComponentSuspended",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+    }],
+    "name": "LogComponentUnpaused",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "componentId",
+        "type": "uint256"
+    }],
+    "name": "LogProductApproved",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+        "indexed": false,
+        "internalType": "address",
+        "name": "productAddress",
+        "type": "address"
+    }],
+    "name": "LogProductCreated",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "componentId",
+        "type": "uint256"
+    }],
+    "name": "LogProductDeclined",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "componentId",
+        "type": "uint256"
+    }],
+    "name": "LogProductProposed",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+            "indexed": false,
+            "internalType": "bytes32",
+            "name": "processId",
+            "type": "bytes32"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "claimId",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "payoutAmount",
+            "type": "uint256"
+        }
+    ],
+    "name": "LogRainClaimConfirmed",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+            "indexed": false,
+            "internalType": "bytes32",
+            "name": "policyId",
+            "type": "bytes32"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "claimId",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "payoutAmount",
+            "type": "uint256"
+        }
+    ],
+    "name": "LogRainClaimCreated",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "requestId",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "bytes32",
+            "name": "processId",
+            "type": "bytes32"
+        },
+        {
+            "indexed": false,
+            "internalType": "bytes",
+            "name": "fireCategory",
+            "type": "bytes"
+        }
+    ],
+    "name": "LogRainOracleCallbackReceived",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+            "indexed": false,
+            "internalType": "bytes32",
+            "name": "policyId",
+            "type": "bytes32"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "payoutAmount",
+            "type": "uint256"
+        }
+    ],
+    "name": "LogRainPayoutCreated",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+            "indexed": false,
+            "internalType": "bytes32",
+            "name": "processId",
+            "type": "bytes32"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "claimId",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "payoutId",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "payoutAmount",
+            "type": "uint256"
+        }
+    ],
+    "name": "LogRainPayoutExecuted",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+            "indexed": false,
+            "internalType": "bytes32",
+            "name": "policyId",
+            "type": "bytes32"
+        },
+        {
+            "indexed": false,
+            "internalType": "address",
+            "name": "policyHolder",
+            "type": "address"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "premiumAmount",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "sumInsuredAmount",
+            "type": "uint256"
+        }
+    ],
+    "name": "LogRainPolicyApplicationCreated",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+            "indexed": false,
+            "internalType": "bytes32",
+            "name": "policyId",
+            "type": "bytes32"
+        },
+        {
+            "indexed": false,
+            "internalType": "address",
+            "name": "policyHolder",
+            "type": "address"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "premiumAmount",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "sumInsuredAmount",
+            "type": "uint256"
+        }
+    ],
+    "name": "LogRainPolicyCreated",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "policyId",
+        "type": "bytes32"
+    }],
+    "name": "LogRainPolicyProcessed",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+            "indexed": false,
+            "internalType": "bytes32",
+            "name": "riskId",
+            "type": "bytes32"
+        },
+        {
+            "indexed": false,
+            "internalType": "bytes32",
+            "name": "placeId",
+            "type": "bytes32"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "startDate",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "endDate",
+            "type": "uint256"
+        }
+    ],
+    "name": "LogRainRiskDataCreated",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "requestId",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "bytes32",
+            "name": "riskId",
+            "type": "bytes32"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "precActual",
+            "type": "uint256"
+        }
+    ],
+    "name": "LogRainRiskDataReceived",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+            "indexed": false,
+            "internalType": "bytes32",
+            "name": "processId",
+            "type": "bytes32"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "requestId",
+            "type": "uint256"
+        }
+    ],
+    "name": "LogRainRiskDataRequestCancelled",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "requestId",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "bytes32",
+            "name": "riskId",
+            "type": "bytes32"
+        },
+        {
+            "indexed": false,
+            "internalType": "bytes32",
+            "name": "placeId",
+            "type": "bytes32"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "startDate",
+            "type": "uint256"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "endDate",
+            "type": "uint256"
+        }
+    ],
+    "name": "LogRainRiskDataRequested",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+            "indexed": false,
+            "internalType": "bytes32",
+            "name": "riskId",
+            "type": "bytes32"
+        },
+        {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "policies",
+            "type": "uint256"
+        }
+    ],
+    "name": "LogRainRiskProcessed",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+            "indexed": true,
+            "internalType": "address",
+            "name": "previousOwner",
+            "type": "address"
+        },
+        {
+            "indexed": true,
+            "internalType": "address",
+            "name": "newOwner",
+            "type": "address"
+        }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+            "indexed": true,
+            "internalType": "bytes32",
+            "name": "role",
+            "type": "bytes32"
+        },
+        {
+            "indexed": true,
+            "internalType": "bytes32",
+            "name": "previousAdminRole",
+            "type": "bytes32"
+        },
+        {
+            "indexed": true,
+            "internalType": "bytes32",
+            "name": "newAdminRole",
+            "type": "bytes32"
+        }
+    ],
+    "name": "RoleAdminChanged",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+            "indexed": true,
+            "internalType": "bytes32",
+            "name": "role",
+            "type": "bytes32"
+        },
+        {
+            "indexed": true,
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+        },
+        {
+            "indexed": true,
+            "internalType": "address",
+            "name": "sender",
+            "type": "address"
+        }
+    ],
+    "name": "RoleGranted",
+    "type": "event"
+},
+{
+    "anonymous": false,
+    "inputs": [{
+            "indexed": true,
+            "internalType": "bytes32",
+            "name": "role",
+            "type": "bytes32"
+        },
+        {
+            "indexed": true,
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+        },
+        {
+            "indexed": true,
+            "internalType": "address",
+            "name": "sender",
+            "type": "address"
+        }
+    ],
+    "name": "RoleRevoked",
+    "type": "event"
+},
+{
+    "inputs": [],
+    "name": "COORD_MULTIPLIER",
+    "outputs": [{
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "DEFAULT_ADMIN_ROLE",
+    "outputs": [{
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "INSURER_ROLE",
+    "outputs": [{
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "NAME",
+    "outputs": [{
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "PERCENTAGE_MULTIPLIER",
+    "outputs": [{
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "POLICY_FLOW",
+    "outputs": [{
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "PRECIPITATION_MAX",
+    "outputs": [{
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "PRECIPITATION_MIN",
+    "outputs": [{
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "PRECIPITATION_MULTIPLIER",
+    "outputs": [{
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "VERSION",
+    "outputs": [{
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [{
+            "internalType": "bytes32",
+            "name": "processId",
+            "type": "bytes32"
+        },
+        {
+            "internalType": "uint256",
+            "name": "expectedPremiumAmount",
+            "type": "uint256"
+        },
+        {
+            "internalType": "uint256",
+            "name": "sumInsuredAmount",
+            "type": "uint256"
+        }
+    ],
+    "name": "adjustPremiumSumInsured",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [{
+            "internalType": "bytes32",
+            "name": "riskId",
+            "type": "bytes32"
+        },
+        {
+            "internalType": "uint256",
+            "name": "trigger",
+            "type": "uint256"
+        },
+        {
+            "internalType": "uint256",
+            "name": "exit",
+            "type": "uint256"
+        },
+        {
+            "internalType": "uint256",
+            "name": "precHist",
+            "type": "uint256"
+        }
+    ],
+    "name": "adjustRisk",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "applications",
+    "outputs": [{
+        "internalType": "uint256",
+        "name": "applicationCount",
+        "type": "uint256"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [{
+            "internalType": "address",
+            "name": "policyHolder",
+            "type": "address"
+        },
+        {
+            "internalType": "uint256",
+            "name": "premium",
+            "type": "uint256"
+        },
+        {
+            "internalType": "uint256",
+            "name": "sumInsured",
+            "type": "uint256"
+        },
+        {
+            "internalType": "bytes32",
+            "name": "riskId",
+            "type": "bytes32"
+        }
+    ],
+    "name": "applyForPolicy",
+    "outputs": [{
+        "internalType": "bytes32",
+        "name": "processId",
+        "type": "bytes32"
+    }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "approvalCallback",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "archiveCallback",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [{
+            "internalType": "uint256",
+            "name": "payoutPercentage",
+            "type": "uint256"
+        },
+        {
+            "internalType": "uint256",
+            "name": "sumInsuredAmount",
+            "type": "uint256"
+        }
+    ],
+    "name": "calculatePayout",
+    "outputs": [{
+        "internalType": "uint256",
+        "name": "payoutAmount",
+        "type": "uint256"
+    }],
+    "stateMutability": "pure",
+    "type": "function"
+},
+{
+    "inputs": [{
+            "internalType": "uint256",
+            "name": "trigger",
+            "type": "uint256"
+        },
+        {
+            "internalType": "uint256",
+            "name": "exit",
+            "type": "uint256"
+        },
+        {
+            "internalType": "uint256",
+            "name": "precHist",
+            "type": "uint256"
+        },
+        {
+            "internalType": "uint256",
+            "name": "precActual",
+            "type": "uint256"
+        }
+    ],
+    "name": "calculatePayoutPercentage",
+    "outputs": [{
+        "internalType": "uint256",
+        "name": "payoutPercentage",
+        "type": "uint256"
+    }],
+    "stateMutability": "pure",
+    "type": "function"
+},
+{
+    "inputs": [{
+        "internalType": "bytes32",
+        "name": "processId",
+        "type": "bytes32"
+    }],
+    "name": "cancelOracleRequest",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [{
+        "internalType": "bytes32",
+        "name": "policyId",
+        "type": "bytes32"
+    }],
+    "name": "collectPremium",
+    "outputs": [{
+            "internalType": "bool",
+            "name": "success",
+            "type": "bool"
+        },
+        {
+            "internalType": "uint256",
+            "name": "fee",
+            "type": "uint256"
+        },
+        {
+            "internalType": "uint256",
+            "name": "netPremium",
+            "type": "uint256"
+        }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [{
+            "internalType": "bytes32",
+            "name": "policyId",
+            "type": "bytes32"
+        },
+        {
+            "internalType": "address",
+            "name": "from",
+            "type": "address"
+        },
+        {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+        }
+    ],
+    "name": "collectPremium",
+    "outputs": [{
+            "internalType": "bool",
+            "name": "success",
+            "type": "bool"
+        },
+        {
+            "internalType": "uint256",
+            "name": "fee",
+            "type": "uint256"
+        },
+        {
+            "internalType": "uint256",
+            "name": "netPremium",
+            "type": "uint256"
+        }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [{
+            "internalType": "uint256",
+            "name": "startDate",
+            "type": "uint256"
+        },
+        {
+            "internalType": "uint256",
+            "name": "endDate",
+            "type": "uint256"
+        },
+        {
+            "internalType": "bytes32",
+            "name": "placeId",
+            "type": "bytes32"
+        },
+        {
+            "internalType": "int256",
+            "name": "lat",
+            "type": "int256"
+        },
+        {
+            "internalType": "int256",
+            "name": "long",
+            "type": "int256"
+        },
+        {
+            "internalType": "uint256",
+            "name": "trigger",
+            "type": "uint256"
+        },
+        {
+            "internalType": "uint256",
+            "name": "exit",
+            "type": "uint256"
+        },
+        {
+            "internalType": "uint256",
+            "name": "precHist",
+            "type": "uint256"
+        }
+    ],
+    "name": "createRisk",
+    "outputs": [{
+        "internalType": "bytes32",
+        "name": "riskId",
+        "type": "bytes32"
+    }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "declineCallback",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "getApplicationDataStructure",
+    "outputs": [{
+        "internalType": "string",
+        "name": "dataStructure",
+        "type": "string"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [{
+        "internalType": "uint256",
+        "name": "applicationIdx",
+        "type": "uint256"
+    }],
+    "name": "getApplicationId",
+    "outputs": [{
+        "internalType": "bytes32",
+        "name": "processId",
+        "type": "bytes32"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "getClaimDataStructure",
+    "outputs": [{
+        "internalType": "string",
+        "name": "dataStructure",
+        "type": "string"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "getCoordinatesMultiplier",
+    "outputs": [{
+        "internalType": "uint256",
+        "name": "multiplier",
+        "type": "uint256"
+    }],
+    "stateMutability": "pure",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "getId",
+    "outputs": [{
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "getName",
+    "outputs": [{
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "getOracleId",
+    "outputs": [{
+        "internalType": "uint256",
+        "name": "oracleId",
+        "type": "uint256"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "getOwner",
+    "outputs": [{
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "getPayoutDataStructure",
+    "outputs": [{
+        "internalType": "string",
+        "name": "dataStructure",
+        "type": "string"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "getPercentageMultiplier",
+    "outputs": [{
+        "internalType": "uint256",
+        "name": "multiplier",
+        "type": "uint256"
+    }],
+    "stateMutability": "pure",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "getPolicyFlow",
+    "outputs": [{
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [{
+            "internalType": "bytes32",
+            "name": "riskId",
+            "type": "bytes32"
+        },
+        {
+            "internalType": "uint256",
+            "name": "policyIdx",
+            "type": "uint256"
+        }
+    ],
+    "name": "getPolicyId",
+    "outputs": [{
+        "internalType": "bytes32",
+        "name": "processId",
+        "type": "bytes32"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "getPrecipitationMultiplier",
+    "outputs": [{
+        "internalType": "uint256",
+        "name": "multiplier",
+        "type": "uint256"
+    }],
+    "stateMutability": "pure",
+    "type": "function"
+},
+{
+    "inputs": [{
+            "internalType": "address",
+            "name": "policyHolder",
+            "type": "address"
+        },
+        {
+            "internalType": "uint256",
+            "name": "idx",
+            "type": "uint256"
+        }
+    ],
+    "name": "getProcessId",
+    "outputs": [{
+        "internalType": "bytes32",
+        "name": "processId",
+        "type": "bytes32"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "getRegistry",
+    "outputs": [{
+        "internalType": "contract IRegistry",
+        "name": "",
+        "type": "address"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [{
+        "internalType": "bytes32",
+        "name": "riskId",
+        "type": "bytes32"
+    }],
+    "name": "getRisk",
+    "outputs": [{
+        "components": [{
+                "internalType": "bytes32",
+                "name": "id",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "uint256",
+                "name": "startDate",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "endDate",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "placeId",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "int256",
+                "name": "lat",
+                "type": "int256"
+            },
+            {
+                "internalType": "int256",
+                "name": "long",
+                "type": "int256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "trigger",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "exit",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "precHist",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "precDays",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "requestId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bool",
+                "name": "requestTriggered",
+                "type": "bool"
+            },
+            {
+                "internalType": "uint256",
+                "name": "responseAt",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "precActual",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "precDaysActual",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "payoutPercentage",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "createdAt",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "updatedAt",
+                "type": "uint256"
+            }
+        ],
+        "internalType": "struct RainProduct.Risk",
+        "name": "risk",
+        "type": "tuple"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [{
+            "internalType": "bytes32",
+            "name": "placeId",
+            "type": "bytes32"
+        },
+        {
+            "internalType": "uint256",
+            "name": "startDate",
+            "type": "uint256"
+        },
+        {
+            "internalType": "uint256",
+            "name": "endDate",
+            "type": "uint256"
+        }
+    ],
+    "name": "getRiskId",
+    "outputs": [{
+        "internalType": "bytes32",
+        "name": "riskId",
+        "type": "bytes32"
+    }],
+    "stateMutability": "pure",
+    "type": "function"
+},
+{
+    "inputs": [{
+        "internalType": "uint256",
+        "name": "idx",
+        "type": "uint256"
+    }],
+    "name": "getRiskId",
+    "outputs": [{
+        "internalType": "bytes32",
+        "name": "riskId",
+        "type": "bytes32"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "getRiskpoolId",
+    "outputs": [{
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [{
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+    }],
+    "name": "getRoleAdmin",
+    "outputs": [{
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "getState",
+    "outputs": [{
+        "internalType": "enum IComponent.ComponentState",
+        "name": "",
+        "type": "uint8"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "getToken",
+    "outputs": [{
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "getType",
+    "outputs": [{
+        "internalType": "enum IComponent.ComponentType",
+        "name": "",
+        "type": "uint8"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [{
+            "internalType": "bytes32",
+            "name": "role",
+            "type": "bytes32"
+        },
+        {
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+        }
+    ],
+    "name": "grantRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [{
+            "internalType": "bytes32",
+            "name": "role",
+            "type": "bytes32"
+        },
+        {
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+        }
+    ],
+    "name": "hasRole",
+    "outputs": [{
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "isOracle",
+    "outputs": [{
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "isProduct",
+    "outputs": [{
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "isRiskpool",
+    "outputs": [{
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [{
+            "internalType": "uint256",
+            "name": "requestId",
+            "type": "uint256"
+        },
+        {
+            "internalType": "bytes32",
+            "name": "processId",
+            "type": "bytes32"
+        },
+        {
+            "internalType": "bytes",
+            "name": "responseData",
+            "type": "bytes"
+        }
+    ],
+    "name": "oracleCallback",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "owner",
+    "outputs": [{
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "pauseCallback",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [{
+        "internalType": "bytes32",
+        "name": "riskId",
+        "type": "bytes32"
+    }],
+    "name": "policies",
+    "outputs": [{
+        "internalType": "uint256",
+        "name": "policyCount",
+        "type": "uint256"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [{
+            "internalType": "address",
+            "name": "policyHolder",
+            "type": "address"
+        },
+        {
+            "internalType": "uint256",
+            "name": "processIdx",
+            "type": "uint256"
+        }
+    ],
+    "name": "processForHolder",
+    "outputs": [{
+        "components": [{
+                "internalType": "bytes32",
+                "name": "riskId",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "processId",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "uint256",
+                "name": "startDate",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "endDate",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "placeId",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "uint256",
+                "name": "precHist",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "sumInsured",
+                "type": "uint256"
+            }
+        ],
+        "internalType": "struct RainProduct.Process",
+        "name": "",
+        "type": "tuple"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [{
+        "internalType": "address",
+        "name": "policyHolder",
+        "type": "address"
+    }],
+    "name": "processIdsForHolder",
+    "outputs": [{
+        "internalType": "bytes32[]",
+        "name": "",
+        "type": "bytes32[]"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [{
+            "internalType": "bytes32",
+            "name": "riskId",
+            "type": "bytes32"
+        },
+        {
+            "internalType": "uint256",
+            "name": "batchSize",
+            "type": "uint256"
+        }
+    ],
+    "name": "processPoliciesForRisk",
+    "outputs": [{
+        "internalType": "bytes32[]",
+        "name": "processedPolicies",
+        "type": "bytes32[]"
+    }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [{
+        "internalType": "bytes32",
+        "name": "policyId",
+        "type": "bytes32"
+    }],
+    "name": "processPolicy",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "proposalCallback",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [{
+            "internalType": "bytes32",
+            "name": "role",
+            "type": "bytes32"
+        },
+        {
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+        }
+    ],
+    "name": "renounceRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "resumeCallback",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [{
+            "internalType": "bytes32",
+            "name": "role",
+            "type": "bytes32"
+        },
+        {
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+        }
+    ],
+    "name": "revokeRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [{
+        "internalType": "uint256",
+        "name": "capacity",
+        "type": "uint256"
+    }],
+    "name": "riskPoolCapacityCallback",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "risks",
+    "outputs": [{
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [{
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+    }],
+    "name": "setId",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [{
+        "internalType": "bytes4",
+        "name": "interfaceId",
+        "type": "bytes4"
+    }],
+    "name": "supportsInterface",
+    "outputs": [{
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+    }],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "suspendCallback",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [{
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+    }],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [{
+            "internalType": "bytes32",
+            "name": "processId",
+            "type": "bytes32"
+        },
+        {
+            "internalType": "bytes",
+            "name": "secrets",
+            "type": "bytes"
+        },
+        {
+            "internalType": "string",
+            "name": "source",
+            "type": "string"
+        }
+    ],
+    "name": "triggerOracle",
+    "outputs": [{
+        "internalType": "uint256",
+        "name": "requestId",
+        "type": "uint256"
+    }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [{
+        "internalType": "bytes32",
+        "name": "processId",
+        "type": "bytes32"
+    }],
+    "name": "underwrite",
+    "outputs": [{
+        "internalType": "bool",
+        "name": "success",
+        "type": "bool"
+    }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [],
+    "name": "unpauseCallback",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+}
+]

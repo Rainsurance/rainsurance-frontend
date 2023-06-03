@@ -30,7 +30,7 @@ import {
 } from "wagmi";
 import { ethers } from "ethers";
 import { useRouter } from "next/router";
-import RainProductAbi from "../../utils/RainProduct.json";
+import RainProductAbi from "../../utils/RainProductCLFunctions.json";
 
 const createUseFormSchema = z.object({
     name: z.string().nonempty("Full name is required"),

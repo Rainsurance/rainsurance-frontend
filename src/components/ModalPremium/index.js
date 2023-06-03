@@ -47,7 +47,7 @@ const ModalPremium = ({
                     endDate={simulation.endDate}
                     days={simulation.days}
                     amount={simulation.amount}
-                    aph={simulation.avgPrec}
+                    precHist={simulation.avgPrec}
                 />
                 <button onClick={() => buy()}>
                     Buy Protection

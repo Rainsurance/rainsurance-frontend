@@ -39,6 +39,10 @@ function FormCalculate({ setModalOpen, setSimulation }) {
         return ethers.encodeBytes32String(slugify(input));
     }
 
+    function currentTimestampUTC(date) {
+        return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds())
+    }
+
     async function calculatePremium(form) {
         if (!isConnected) {
             alert("Please connect your wallet to continue");
@@ -52,7 +56,8 @@ function FormCalculate({ setModalOpen, setSimulation }) {
             throw new Error("Destination not found");
         }
         const placeId = s2b(`${place.id} ${place.name}`);
-        const startDateTimestamp = new Date(startDate).getTime();
+        //const startDateTimestamp = new Date(startDate).getTime();
+        const startDateTimestamp = currentTimestampUTC(new Date(startDate))
         const simulation = {
             startDate: startDateTimestamp,
             endDate: startDateTimestamp + (form.days * 24 * 60 * 60 - 1) * 1000,

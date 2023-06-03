@@ -5,7 +5,7 @@ let USDollar = new Intl.NumberFormat('en-US', {
     currency: 'USD',
 });
 
-const PolicyConditions = ({place, days, startDate, endDate, amount, aph}) => {
+const PolicyConditions = ({place, days, startDate, endDate, amount, precHist}) => {
     const rainyDays = Math.ceil(days * Number(process.env.NEXT_PUBLIC_RISK_DAYS_PERCENTAGE));
     return (
         <>
@@ -20,7 +20,7 @@ const PolicyConditions = ({place, days, startDate, endDate, amount, aph}) => {
             <p>
                 You get {USDollar.format(amount)} (100% refund) if the{" "}
                 rainfall volume is greater than or equal to 2x the value{" "}
-                shown above ({2 * aph} mm).
+                shown above ({2 * precHist} mm).
                 <br />
                 You get a proportional refund if the rainfall volume is in{" "} 
                 between the two values.

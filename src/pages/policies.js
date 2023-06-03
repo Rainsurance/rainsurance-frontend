@@ -24,9 +24,12 @@ import { useContractRead, useAccount } from "wagmi";
 import { readContract } from "@wagmi/core";
 
 import { ethers } from "ethers";
-import RainProductAbi from "../utils/RainProduct.json";
+import RainProductAbi from "../utils/RainProductCLFunctions.json";
 import InstanceServiceAbi from "../utils/InstanceService.json";
 import { destinations } from "../utils/destinations";
+
+const precipitationMultiplier = Number(process.env.PRECIPITATION_MULTIPLIER);
+const usdcMultiplier = 1e6;
 
 const RISK_STATUS = {
     ACTIVE: {
@@ -106,8 +109,8 @@ function preparePolicy(data) {
         city,
         startDate: formatDate(Number(data.startDate)),
         endDate: formatDate(Number(data.endDate)),
-        sumInsured: Number(data.sumInsured) / 1e6,
-        avgPrec: Number(data.aph),
+        sumInsured: Number(data.sumInsured) / usdcMultiplier,
+        avgPrec: Number(data.precHist) / precipitationMultiplier,
         isActive: isFutureDate(Number(data.endDate)),
     };
 }
