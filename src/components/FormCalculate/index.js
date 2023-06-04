@@ -33,7 +33,6 @@ function FormCalculate({ setModalOpen, setSimulation }) {
     });
     const [startDate, setStartDate] = useState(null);
     const [calculating, setCalculating] = useState(false);
-    const { isConnected } = useAccount();
 
     function s2b(input) {
         return ethers.encodeBytes32String(slugify(input));
@@ -44,10 +43,6 @@ function FormCalculate({ setModalOpen, setSimulation }) {
     }
 
     async function calculatePremium(form) {
-        if (!isConnected) {
-            alert("Please connect your wallet to continue");
-            return;
-        }
         if (calculating) {
             return;
         }
@@ -147,9 +142,9 @@ function FormCalculate({ setModalOpen, setSimulation }) {
                     {errors.amount && <span>{errors.amount.message}</span>}
                 </ItemForm>
                 <ItemForm>
-                    <ButtonForm type="submit">
+                    <button type="submit" disabled={calculating}>
                         {calculating ? "Please wait..." : "Calculate Premium"}
-                    </ButtonForm>
+                    </button>
                 </ItemForm>
             </form>
         </EnvForm>

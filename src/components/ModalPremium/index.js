@@ -4,6 +4,7 @@ import Modal from "../ModalTemplate/modal";
 import { ModalCPremium } from "./styles";
 import IconRain from "../../../public/icons/icon-rain-blue.png";
 import PolicyConditions from "../PolicyConditions";
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const ModalPremium = ({
     modalOpen,
@@ -38,8 +39,7 @@ const ModalPremium = ({
                 </h2>
                 <h3>
                     <Image src={IconRain} width={25} height={25} alt="Wallet" />
-                    The historical average daily precipitation for this period of the
-                    year at this location is {simulation.avgPrec} mm.
+                    The historical average daily precipitation for this period at this location is {simulation.avgPrec} mm.
                 </h3>
                 <PolicyConditions 
                     place={simulation.place?.name}
@@ -49,9 +49,14 @@ const ModalPremium = ({
                     amount={simulation.amount}
                     precHist={simulation.avgPrec}
                 />
-                <button onClick={() => buy()}>
-                    Buy Protection
-                </button>
+                { isConnected && 
+                    (<button onClick={buy}>
+                        Buy Protection
+                    </button>)
+                }
+                { !isConnected && 
+                    <ConnectButton showBalance={false}/>
+                }
             </ModalCPremium>
         </Modal>
     );

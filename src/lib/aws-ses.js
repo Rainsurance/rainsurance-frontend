@@ -63,7 +63,7 @@ export const sendPolicyMail = async (policy) => {
                             </p>
                             <p><b><u>Policy conditions</u>:</b></p>
                             <p>
-                                The historical average daily precipitation for this period of the year at this location is ${policy.risk.precHist} mm.
+                                The historical average daily precipitation for this period at this location is ${policy.risk.precHist} mm.
                             </p>
                             ${renderToStaticMarkup(
                                 <PolicyConditions 

@@ -1,26 +1,20 @@
 import Layout from "@/layout/Layout";
-import IconRain from "../../public/icons/icon-rain-blue-2.png";
-import IconPlane from "../../public/icons/icon-plane.png";
-import IconCalendar from "../../public/icons/icon-calendar-blue.png";
 
 import { confirmAlert } from "react-confirm-alert"; // Import
 import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
 
+import Loading from '@/components/Loading';
+import BackupText from '@/components/BackupText';
+import PolicyBox from '@/components/PolicyBox';
+import Modal from '@/components/ModalTemplate/modal';
 import {
     Policies,
     Container,
-    ContainerItem,
-    ContainerItemTop,
-    ContainerBody,
-    ContainerCalendar,
-    ContainerRain,
-    ContainerBodyItem,
-    Status,
+    ModalCStatus,
+    H3Modal
 } from "@/styles/policies";
-import Image from "next/image";
 import { useState, useEffect } from "react";
-import Link from "next/link";
-import { useContractRead, useAccount } from "wagmi";
+import { useAccount } from "wagmi";
 import { readContract } from "@wagmi/core";
 
 import { ethers } from "ethers";
@@ -28,62 +22,25 @@ import RainProductAbi from "../utils/RainProductCLFunctions.json";
 import InstanceServiceAbi from "../utils/InstanceService.json";
 import { destinations } from "../utils/destinations";
 
-const precipitationMultiplier = Number(process.env.PRECIPITATION_MULTIPLIER);
+const precipitationMultiplier = Number(process.env.NEXT_PUBLIC_PRECIPITATION_MULTIPLIER);
 const usdcMultiplier = 1e6;
+const USDollar = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+});
 
-const RISK_STATUS = {
-    ACTIVE: {
-        label: "'Policy is active'",
-        color: "#0072ff",
-        processable: false,
-        claimable: false,
-    },
-    INACTIVE: {
-        label: "",
-        color: "",
-        processable: true,
-        claimable: false,
-    },
-    PENDING: {
-        label: "'Checking weather...'",
-        color: "#0072ff",
-        processable: false,
-        claimable: false,
-    },
-    APPROVED: {
-        label: "'Risk approved'",
-        color: "#19cd14",
-        processable: false,
-        claimable: true,
-    },
-    REJECTED: {
-        label: "'Risk rejected'",
-        color: "#d03537",
-        processable: false,
-        claimable: false,
-    },
-};
+const COLOR_BLUE = "#0072ff";
+const COLOR_GREEN = "#19cd14";
+const COLOR_RED = "#d03537";
+const COLOR_GRAY = "#4b4f55";
 
-const PAYOUT_STATUS = {
-    PENDING: {
-        label: "",
-        color: "",
-        requested: false,
-        paid_out: false,
-    },
-    REQUESTED: {
-        label: "'Payment requested'",
-        color: "#0072ff",
-        requested: true,
-        paid_out: false,
-    },
-    PAID_OUT: {
-        label: "'Payout done'",
-        color: "#19cd14",
-        requested: true,
-        paid_out: true,
-    },
-};
+const FILTER_BLUE = "invert(29%) sepia(36%) saturate(5992%) hue-rotate(205deg) brightness(102%) contrast(107%)";
+const FILTER_GREEN = "invert(57%) sepia(77%) saturate(1343%) hue-rotate(74deg) brightness(94%) contrast(106%)";
+const FILTER_RED = "invert(24%) sepia(66%) saturate(2718%) hue-rotate(340deg) brightness(90%) contrast(90%)";
+
+const ICON_BLUE = '../../public/icons/icon-pending.png'
+const ICON_GREEN = '../../public/icons/icon-approved.png'
+const ICON_RED = '../../public/icons/icon-rejected.png'
 
 function b2s(input) {
     return ethers.decodeBytes32String(input);
@@ -97,63 +54,172 @@ function isFutureDate(timestamp) {
     return timestamp * 1000 > new Date().getTime();
 }
 
+function policyStyle(status) {
+    switch (status) {
+        case 1:
+            return {
+                label: "Policy is active",
+                color: COLOR_BLUE,
+                processable: false,
+                claimable: false,
+                filter: "",
+                modal: false,
+            }
+        case 2:
+            return {
+                label: "",
+                color: "",
+                processable: true,
+                claimable: false,
+                filter: "",
+                modal: false,
+            }
+        case 3:
+            return {
+                label: "Checking weather...",
+                color: COLOR_BLUE,
+                processable: false,
+                claimable: false,
+                filter: FILTER_BLUE,
+                modal: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                modalIcon: ICON_BLUE,
+            }
+        case 4:
+            return {
+                label: "Risk approved",
+                color: COLOR_GREEN,
+                processable: false,
+                claimable: true,
+                filter: FILTER_GREEN,
+                modal: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                modalIcon: ICON_GREEN,
+            }
+        case 5:
+            return {
+                label: "Risk rejected",
+                color: COLOR_RED,
+                processable: false,
+                claimable: false,
+                filter: FILTER_RED,
+                modal: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                modalIcon: ICON_RED,
+            }
+        case 6:
+            return {
+                label: "Processing payout...",
+                color: COLOR_RED,
+                processable: false,
+                claimable: false,
+                filter: "",
+                modal: false,
+            }
+        case 7:
+            return {
+                label: "Payout processed",
+                color: COLOR_GREEN,
+                processable: false,
+                claimable: false,
+                filter: "",
+                modal: false,
+            }
+        default:
+            return {
+                label: "Under review", //TODO
+                color: COLOR_GRAY,
+                processable: false,
+                claimable: false,
+                filter: "",
+                modal: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                modalIcon: ICON_RED,
+                canceled: true,
+            }
+      }
+}
+
+function policyState(data) {
+
+    // ApplicationState {Applied, Revoked, Underwritten, Declined}
+    // PolicyState {Active, Expired, Closed}
+    // ClaimState {Applied, Confirmed, Declined, Closed}
+    // PayoutState {Expected, PaidOut}
+    
+    //  0  (A) application_pending -> ApplicationState.Applied(0) -> gray / no action
+    //     (B) application_approved -> ApplicationState.Underwritten(2)
+    //  1    B.1 policy_active -> blue / no action
+    //       B.2 policy_inactive
+    //  2       B.2.1 risk_process_pending -> Risk.requestTriggered == false -> blue / *processable*
+    //          B.2.2 risk_process_requested -> Risk.requestTriggered == true
+    //  3           B.2.2.1 risk_pending -> Risk.responseAt == 0 -> blue / no action
+    //  4           B.2.2.2 risk_approved -> Risk.responseAt > 0 && payoutPercentage > 0 -> green / *claimable*
+    //  5           B.2.2.3 risk_rejected -> Risk.responseAt > 0 && payoutPercentage == 0 -> red / no action
+    //          B.2.3 payout_requested
+    //  6           B.2.3.1 payout_pending -> blue / no action
+    //  7           B.2.3.2 payout_paid -> green / no action
+    //  8  (C) application_declined_revoked -> ApplicationState.Revoked_Declined(1_3) -> gray / no action
+
+    let status;
+    const policyActive = isFutureDate(Number(data.endDate));
+    if (data.application.state == 0) {
+        status = 0;
+    } else if (data.application.state == 2) {
+        if (policyActive) {
+            status = 1;
+        } else if (data.risk.requestTriggered == false) {
+            status = 2;
+        } else if (data.risk.requestTriggered == true) {
+            if (data.risk.responseAt == 0) {
+                status = 3;
+            } else if (data.risk.responseAt > 0) {
+                if (data.risk.payoutPercentage > 0) {
+                    if (data.claimsCount == 0) {
+                        status = 4;
+                    } else {
+                        if (data.details.state == 0) {
+                            status = 6;
+                        } else {
+                            status = 7;
+                        }
+                    }
+                } else {
+                    status = 5;
+                }
+                
+            }
+        }
+    } else {
+        status = 8;
+    }
+    return status;
+}
+
 function preparePolicy(data) {
     const cityId = b2s(data.placeId).split("-")[0];
     var city = destinations.find((item) => item.id === cityId);
     if (!city) {
         city = { name: "Unknown" };
     }
+
+    const sumInsured = Number(data.sumInsured) / usdcMultiplier;
+    const sumInsuredUSD = USDollar.format(sumInsured);
+    const status = policyState(data);
+    const style = policyStyle(status);
+
     return {
         processId: data.processId,
         riskId: data.riskId,
         city,
+        status,
+        style,
         startDate: formatDate(Number(data.startDate)),
         endDate: formatDate(Number(data.endDate)),
-        sumInsured: Number(data.sumInsured) / usdcMultiplier,
+        sumInsured,
+        sumInsuredUSD,
         avgPrec: Number(data.precHist) / precipitationMultiplier,
         isActive: isFutureDate(Number(data.endDate)),
-    };
-}
-
-//ApplicationState {Applied, Revoked, Underwritten, Declined}
-//PolicyState {Active, Expired, Closed}
-//ClaimState {Applied, Confirmed, Declined, Closed}
-//PayoutState {Expected, PaidOut}
-function preparePayout(data) {
-    let payoutStatus;
-    if (data.state == 0) {
-        payoutStatus = "PENDING";
-    } else if (data.state == 2) {
-        payoutStatus = "PAID_OUT";
-    } else {
-        payoutStatus = "REQUESTED";
-    }
-    return {
-        ...data,
-        status: PAYOUT_STATUS[payoutStatus],
-    };
-}
-
-function prepareRisk(policyActive, data) {
-    let riskStatus;
-    if (!policyActive && data.requestTriggered) {
-        if (data.responseAt > 0) {
-            if (data.payoutPercentage == 0) {
-                riskStatus = "REJECTED";
-            } else if (data.payoutPercentage > 0) {
-                riskStatus = "APPROVED";
-            }
-        } else {
-            riskStatus = "PENDING";
-        }
-    } else if (!policyActive) {
-        riskStatus = "INACTIVE";
-    } else {
-        riskStatus = "ACTIVE";
-    }
-    return {
-        ...data,
-        status: RISK_STATUS[riskStatus],
+        risk: data.risk,
+        application: data.application,
+        details: data.details,
+        claimsCount: data.claimsCount,
     };
 }
 
@@ -161,7 +227,10 @@ const PoliciesView = () => {
     const [policies, setPolicies] = useState([]);
     const [policiesIdx, setPoliciesIdx] = useState(null);
     const [claiming, setClaiming] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [connectMessage, setConnectMessage] = useState("");
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [modalOpen, setModalOpen] = useState(false);
     const [limit] = useState(10);
     const { address } = useAccount();
 
@@ -175,28 +244,43 @@ const PoliciesView = () => {
         }).then((data) => {
             console.log("all policieIds", data);
             if(data.length > 0) {
-                setPoliciesIdx(Array(limit).fill().map((_, i) => data.length - 1 - i));
+                setPoliciesIdx(Array(Math.min(data.length, limit)).fill().map((_, i) => data.length - 1 - i));
             } else {
                 setPoliciesIdx(null);
             }
         });
     }
 
-    async function getPayout(policy) {
+    async function getDetails(policy) {
         console.log(`Pulling details for policyId ${policy.processId}...`);
-        const payout = readContract({
+        const details = readContract({
             address: process.env.NEXT_PUBLIC_INSTANCE_SERVICE_ADDRESS,
             abi: InstanceServiceAbi,
             functionName: "getPolicy",
             args: [policy.processId],
         })
-        return Promise.all([policy, payout])
-        .then(([policy, payout]) => {
-            console.log(`DONE! PAYOUT for policy ${policy.processId} is:`);
-            console.log(payout);
-            return {...policy, payout: preparePayout(payout)};
+        return Promise.all([policy, details])
+        .then(([policy, details]) => {
+            console.log(`DONE! DETAILS for policy ${policy.processId} is:`);
+            console.log(details);
+            return {...policy, details};
         })
     }
+
+    async function countClaims(policy) {
+        console.log(`Count claims for policyId ${policy.processId}...`);
+        const claimsCount = readContract({
+            address: process.env.NEXT_PUBLIC_INSTANCE_SERVICE_ADDRESS,
+            abi: InstanceServiceAbi,
+            functionName: "claims",
+            args: [policy.processId],
+        })
+        return Promise.all([policy, claimsCount])
+        .then(([policy, claimsCount]) => {
+            console.log(`DONE! ${claimsCount} CLAIMS for policy ${policy.processId}`);
+            return {...policy, claimsCount};
+        })
+    } 
 
     async function getApplication(policy) {
         console.log(`Pulling application for policyId ${policy.processId}...`);
@@ -210,7 +294,7 @@ const PoliciesView = () => {
         .then(([policy, application]) => {
             console.log(`DONE! APPLICATION for policy ${policy.processId} is:`);
             console.log(application);
-            return {...policy, application};;
+            return {...policy, application};
         });
     }
 
@@ -227,7 +311,7 @@ const PoliciesView = () => {
         .then(([policy, risk]) => {
             console.log(`DONE! RISK for policy ${policy.processId} is:`);
             console.log(risk);
-            return {...policy, risk: prepareRisk(policy.isActive, risk)};
+            return {...policy, risk};
         })
     }
 
@@ -242,19 +326,22 @@ const PoliciesView = () => {
         .then((policy) => {
             console.log(`DONE! Policy ${idx} is:`);
             console.log(policy);
-            return preparePolicy(policy);
+            return policy;
         })
     }
 
     async function getPolicies() {
         console.log(`Pulling policies for address ${address} with idx ${policiesIdx}...`)
+        setLoading(true);
         policiesIdx.forEach((idx) => {
             pullPolicy(address, idx)
             .then(getRisk)
             .then(getApplication)
-            .then(getPayout)
+            .then(getDetails)
+            .then(countClaims)
             .then((policy) => {
-                addPolicy(policy);
+                addPolicy(preparePolicy(policy));
+                setLoading(false);
             })
         });
     }
@@ -278,11 +365,13 @@ const PoliciesView = () => {
         }
         setClaiming(true);
         if (endpoint == "process") {
-            policy.risk.status = RISK_STATUS["PENDING"];
+            policy.risk.requestTriggered = true;
         } else {
-            policy.payout.status = PAYOUT_STATUS["REQUESTED"];
+            policy.claimsCount += 1;
         }
-        addPolicy(policy);
+        const status = policyState(policy);
+        const style = policyStyle(status);
+        addPolicy({ ...policy, status, style });
         const response = await fetch(`/api/policies/${endpoint}`, {
             method: "POST",
             headers: {
@@ -291,7 +380,7 @@ const PoliciesView = () => {
             body: JSON.stringify({ policyId: policy.processId }),
         });
         const data = await response.json();
-        console.log("tx", data.tx);
+        console.log("tx", data);
         setClaiming(false);
     }
 
@@ -311,6 +400,13 @@ const PoliciesView = () => {
             ],
         });
     }
+
+    const handleOpenModal = (item) => {
+        if (item.modal) {
+            setSelectedItem(item);
+            setModalOpen(true);
+        }
+      };    
 
     useEffect(() => {
         if (address && !policiesIdx) {
@@ -341,91 +437,33 @@ const PoliciesView = () => {
         <Layout>
             <Policies>
                 <h2>Policies</h2>
-                <div>{ connectMessage }</div>
+                { loading && <Loading /> }
+                { !loading && <BackupText>{ connectMessage }</BackupText> }
                 <Container>
                     {policies.map((item) => (
-                        <ContainerItem key={item.processId}>
-                            <ContainerItemTop>
-                                <h3>
-                                    <Image
-                                        src={IconPlane}
-                                        width={19}
-                                        height={19}
-                                        alt="IconPlane"
-                                    />
-                                    {item.city.name}
-                                </h3>
-                                {item.payout?.status["requested"] ? (
-                                    <Status
-                                        content={item.payout?.status["label"]}
-                                        color={item.payout?.status["color"]}
-                                    />
-                                ) : (
-                                    <Status
-                                        content={item.risk?.status["label"]}
-                                        color={item.risk?.status["color"]}
-                                    />
-                                )}
-                            </ContainerItemTop>
-                            <ContainerBody>
-                                <ContainerBodyItem>
-                                    <ContainerCalendar>
-                                        <Image
-                                            src={IconCalendar}
-                                            width={30}
-                                            height={30}
-                                            alt="Period"
-                                        />
-                                        <p>
-                                            {item.startDate} <br />
-                                            {item.endDate}
-                                        </p>
-                                    </ContainerCalendar>
-                                    <ContainerRain>
-                                        <Image
-                                            src={IconRain}
-                                            width={25}
-                                            height={25}
-                                            alt="Average Precipitation"
-                                        />
-                                        <p>{item.avgPrec} mm</p>
-                                    </ContainerRain>
-                                </ContainerBodyItem>
-                                {item.risk?.status["processable"] && (
-                                    <Link
-                                        href=""
-                                        onClick={() =>
-                                            confirmationDialog(
-                                                "Process confirmation",
-                                                "Are you sure you want to check the weather for this policy?",
-                                                item,
-                                                "process"
-                                            )
-                                        }
-                                    >
-                                        Process
-                                    </Link>
-                                )}
-                                {item.risk?.status["claimable"] &&
-                                    !item.payout?.status["requested"] && (
-                                        <Link
-                                            href=""
-                                            onClick={() =>
-                                                confirmationDialog(
-                                                    "Claim confirmation",
-                                                    "Are you sure you want to claim this policy?",
-                                                    item,
-                                                    "claim"
-                                                )
-                                            }
-                                        >
-                                            Claim
-                                        </Link>
-                                    )}
-                            </ContainerBody>
-                        </ContainerItem>
+                        <PolicyBox
+                            item={item}
+                            confirmationDialog = {confirmationDialog}
+                            handleOpenModal = {handleOpenModal}
+                            key={item.processId}
+                        />
                     ))}
                 </Container>
+                <Modal
+                    isOpen={modalOpen}
+                    setIsOpen={setModalOpen}
+                    closeButton={true}
+                    backModalClick={true}
+                    escapeClose={false}
+                >
+                    <ModalCStatus>
+                        <H3Modal colorStatus={selectedItem?.style["color"]}>
+                            <img src={selectedItem?.style["modalIcon"]} alt="status" />
+                            { selectedItem?.style["label"] }
+                        </H3Modal>
+                        <p>{selectedItem?.style["modal"]}</p>
+                        </ModalCStatus>
+                </Modal>
             </Policies>
         </Layout>
     );

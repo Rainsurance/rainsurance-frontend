@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     // inputs: placeId (bytes32), startDate (uint256), endDate (uint256), lat (int256), long (int256), trigger (uint256), exit (uint256), precHist (uint256)
     // output: riskId (bytes32)
     if (req.method === "POST") {
-        var { place, startDate, endDate, days, lat, lng, avgPrec, riskId } = req.body;
+        var { place, startDate, endDate, days, lat, lng, avgPrec, precDays, riskId } = req.body;
 
         const trigger = 0;
         const exit = 1;
@@ -26,6 +26,7 @@ export default async function handler(req, res) {
                     endDate,
                     days,
                     place,
+                    precDays,
                     precHist: avgPrec,
                     trigger,
                     exit,
@@ -43,8 +44,8 @@ export default async function handler(req, res) {
             // const coordinatesMultiplier = Number(
             //     await rainProductContract.getCoordinatesMultiplier()
             // );
-            const coordinatesMultiplier =  Number(process.env.COORD_MULTIPLIER)
-            const precipitationMultiplier = Number(process.env.PRECIPITATION_MULTIPLIER)
+            const coordinatesMultiplier =  Number(process.env.NEXT_PUBLIC_COORD_MULTIPLIER) 
+            const precipitationMultiplier = Number(process.env.NEXT_PUBLIC_PRECIPITATION_MULTIPLIER)
             const percentageMultiplier = Number(
                 await rainProductContract.getPercentageMultiplier()
             );

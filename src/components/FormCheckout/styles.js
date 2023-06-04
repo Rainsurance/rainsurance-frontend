@@ -44,6 +44,9 @@ export const EnvFormCheckout = styled.div`
         width: 279px;
         margin-bottom: 20px;
     }
+    button:disabled {
+        background: #948e8e;
+    }
     .os-scrollbar .os-scrollbar-handle {
         background: #d7e7fd;
     }
@@ -89,6 +92,9 @@ export const ItemFormCheckout = styled.div`
         box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.75);
         cursor: pointer;
     }
+    button:disabled {
+        background: #948e8e;
+      }
     span {
         color: #f00;
         font-family: "gothambold";

@@ -1,4 +1,5 @@
 import Layout from "@/layout/Layout";
+import BackupText from '@/components/BackupText';
 
 import {
     Policies,
@@ -11,7 +12,7 @@ const StakeView = () => {
         <Layout>
             <Policies>
                 <h2>Stake</h2>
-                This feature is coming soon.
+                <BackupText>This feature is coming soon.</BackupText>
             </Policies>
         </Layout>
     );

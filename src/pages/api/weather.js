@@ -3,8 +3,8 @@ import historybasic from "../../lib/meteoblue";
 export default async function handler(req, res) {
     const { query } = req;
 
-    const lat = query.lat / process.env.COORD_MULTIPLIER;
-    const long = query.long / process.env.COORD_MULTIPLIER;
+    const lat = query.lat / process.env.NEXT_PUBLIC_COORD_MULTIPLIER;
+    const long = query.long / process.env.NEXT_PUBLIC_COORD_MULTIPLIER;
     const startdate = query.startdate; //timestamp
     const enddate = query.enddate; //timestamp
 

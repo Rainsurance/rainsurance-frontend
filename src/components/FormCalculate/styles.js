@@ -80,9 +80,7 @@ export const ItemForm = styled.div`
     font-size: 10px;
     margin-top: -5px;
    }
-   
-`
-export const ButtonForm = styled.button`
+   button[type=submit] {
     margin: 15px 0;
     height: 60px;
     border: 0;
@@ -94,5 +92,9 @@ export const ButtonForm = styled.button`
     -moz-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);
     box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);
     cursor: pointer;
+  }
+  button:disabled {
+    background: #948e8e;
+  }
+   
 `
-

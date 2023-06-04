@@ -345,7 +345,7 @@ const FormCheckout = ({ setSimulation, simulation }) => {
                         </PaymentItem>
                     </EnvPayment>
 
-                    <button type="submit">
+                    <button type="submit" disabled={submitting}>
                         {step <= 3 && "Confirm"}
                         {step == 4 &&
                             "Please confirm the transaction in your wallet"}

@@ -121,6 +121,7 @@ export default async function handler(req, res) {
         avgPrec: avgPrec.toFixed(1),
         dailyPrecProb,
         probability: binProb,
+        precDays: k,
         stats: {
             n, k, p, distribution: binProbDistribution 
         },
