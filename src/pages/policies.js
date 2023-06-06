@@ -38,9 +38,9 @@ const FILTER_BLUE = "invert(29%) sepia(36%) saturate(5992%) hue-rotate(205deg) b
 const FILTER_GREEN = "invert(57%) sepia(77%) saturate(1343%) hue-rotate(74deg) brightness(94%) contrast(106%)";
 const FILTER_RED = "invert(24%) sepia(66%) saturate(2718%) hue-rotate(340deg) brightness(90%) contrast(90%)";
 
-const ICON_BLUE = '../../public/icons/icon-pending.png'
-const ICON_GREEN = '../../public/icons/icon-approved.png'
-const ICON_RED = '../../public/icons/icon-rejected.png'
+const ICON_BLUE = '/icons/icon-pending.png'
+const ICON_GREEN = '/icons/icon-approved.png'
+const ICON_RED = '/icons/icon-rejected.png'
 
 function b2s(input) {
     return ethers.decodeBytes32String(input);
@@ -81,7 +81,7 @@ function policyStyle(status) {
                 processable: false,
                 claimable: false,
                 filter: FILTER_BLUE,
-                modal: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                modal: "Please wait a few moments. We are gathering precipitation data from our weather Oracle (Chainlink + MeteoBlue)",
                 modalIcon: ICON_BLUE,
             }
         case 4:
@@ -231,7 +231,7 @@ const PoliciesView = () => {
     const [connectMessage, setConnectMessage] = useState("");
     const [selectedItem, setSelectedItem] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
-    const [limit] = useState(10);
+    const [limit] = useState(1);
     const { address } = useAccount();
 
     async function getPoliceIds(walletAddress) {
@@ -402,7 +402,7 @@ const PoliciesView = () => {
     }
 
     const handleOpenModal = (item) => {
-        if (item.modal) {
+        if (item.style.modal) {
             setSelectedItem(item);
             setModalOpen(true);
         }

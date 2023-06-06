@@ -154,7 +154,6 @@ export const ModalCStatus = styled.div`
   flex-direction: column;
   align-items: center;
   p {
-    max-width: 210px;
     width: 100%;
     color: #000;
     font-family: 'gotham_light';

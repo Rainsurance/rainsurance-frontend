@@ -120,6 +120,7 @@ const FormCheckout = ({ setSimulation, simulation }) => {
         ...config,
         onError(error) {
             console.log("approve onError", error);
+            setSubmitting(false);
             setStep(3);
         },
         onMutate() {
@@ -193,7 +194,7 @@ const FormCheckout = ({ setSimulation, simulation }) => {
             return;
         }
         if (step <= 5) {
-            approve(form);
+            approve();
         }
     }
 
