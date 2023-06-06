@@ -1,7 +1,7 @@
 import { v4 } from "uuid";
 import connectDB from "../../../lib/connectDB";
 import Risk from "../../../lib/schemas/riskSchema";
-import rainProductContract from "../../../lib/rainProduct";
+import { rainProductContract } from "../../../lib/rainProduct";
 
 export default async function handler(req, res) {
     // POST /api/risks

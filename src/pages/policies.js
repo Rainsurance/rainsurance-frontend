@@ -43,7 +43,8 @@ const ICON_GREEN = '/icons/icon-approved.png'
 const ICON_RED = '/icons/icon-rejected.png'
 
 function b2s(input) {
-    return ethers.decodeBytes32String(input);
+    //return ethers.decodeBytes32String(input); //v5
+    return ethers.utils.parseBytes32String(input); //v6
 }
 
 function formatDate(timestamp) {
@@ -377,7 +378,7 @@ const PoliciesView = () => {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ policyId: policy.processId }),
+            body: JSON.stringify({ policyId: policy.processId, riskId: policy.riskId }),
         });
         const data = await response.json();
         console.log("tx", data);

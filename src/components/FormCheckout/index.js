@@ -112,7 +112,8 @@ const FormCheckout = ({ setSimulation, simulation }) => {
         functionName: "approve",
         args: [
             process.env.NEXT_PUBLIC_INSTANCE_TREASURY_ADDRESS,
-            ethers.parseUnits(simulation.premium, 6),
+            //ethers.parseUnits(simulation.premium, 6), //v6
+            ethers.utils.parseUnits(simulation.premium, 6), //v5
         ],
     });
 
