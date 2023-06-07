@@ -8,6 +8,7 @@ const { createGist } = require("../../../lib/FunctionsSandboxLibrary/utils/githu
 const { deleteGist } = require("../../../lib/FunctionsSandboxLibrary/utils/github")
 const utils = require("../../../lib/FunctionsSandboxLibrary/utils")
 const {
+    getDecodedResultLog,
     buildRequest,
     getRequestConfig,
 } = require("../../../lib/FunctionsSandboxLibrary")
@@ -77,20 +78,14 @@ export default async function handler(req, res) {
     // RainProduct triggerOracle(bytes32 policyId)
     // inputs: policyId (bytes32)
     if (req.method === "POST") {
-        var { policyId, riskId } = req.body;
+        var { policyId } = req.body;
 
-        const functionPath = `${process.cwd()}/src/lib/meteoblue.v2.min.js`
-
-        //TEST
-        const risk = await rainProductContract.getRisk(riskId);
-        const startDate = risk.startDate;
-        const endDate = risk.endDate;
-        const lat = risk.lat;
-        const lng = risk.long;
-        const coordMultiplier = process.env.NEXT_PUBLIC_COORD_MULTIPLIER
-        const precMultiplier = process.env.NEXT_PUBLIC_PRECIPITATION_MULTIPLIER
-        console.log(`${startDate}, ${endDate}, ${lat}, ${lng}, ${coordMultiplier}, ${precMultiplier}`)
-        //TEST
+        let functionPath;
+        if(process.env.CHAINLINK_FUNCIONS_DEBUG) {
+            functionPath = `${process.cwd()}/src/lib/meteoblue.functions.debug.js`
+        } else {
+            functionPath = `${process.cwd()}/src/lib/meteoblue.functions.min.js`
+        }
 
         const unvalidatedRequestConfig = {
             codeLocation: Location.Inline,
@@ -99,28 +94,14 @@ export default async function handler(req, res) {
             secrets: { apiKey: process.env.METEOBLUE_API_KEY ?? "" },
             perNodeSecrets: [],
             walletPrivateKey: process.env.ORACLE_PROVIDER_PRIVATE_KEY,
-            //args: ["startDate", "endDate", "lat", "lng", "coordMultiplier", "precMultiplier"],
-            args: [`${startDate}`, `${endDate}`, `${lat}`, `${lng}`, `${coordMultiplier}`, `${precMultiplier}`],
+            args: ["startDate", "endDate", "lat", "lng", "coordMultiplier", "precMultiplier"],
+            //args: [`${startDate}`, `${endDate}`, `${lat}`, `${lng}`, `${coordMultiplier}`, `${precMultiplier}`],
             expectedReturnType: ReturnType.uint256,
             //expectedReturnType: ReturnType.Buffer,
             secretsURLs: [],
         }
         
         const requestConfig = getRequestConfig(unvalidatedRequestConfig)
-
-        // const DONPublicKey = await rainOracleContract.getDONPublicKey()
-        // requestConfig.DONPublicKey = DONPublicKey.slice(2)
-        // const request = await buildRequest(requestConfig);
-
-        // const secrets = request.secrets ?? [];
-        // const source = request.source;
-
-        // console.log(`policyId: ${policyId}`);
-        // console.log(`riskId: ${riskId}`);
-        // console.log(`source:`);
-        // console.log(source);
-        // console.log(`secrets:`);
-        // console.log(secrets);
 
         // COPIED FROM chainlink-functions-hardhat-starter-kit/tasks/Functions-client/request.js
 
@@ -177,6 +158,7 @@ export default async function handler(req, res) {
                         await cleanup()
                     }
                 })
+
                 // Listen for successful fulfillment, both must be true to be finished
                 let billingEndEventReceived = false
                 let ocrResponseEventReceived = false
@@ -205,6 +187,7 @@ export default async function handler(req, res) {
                         await cleanup()
                     }
                 })
+
                 // Listen for the BillingEnd event, log cost breakdown & resolve
                 registry.on(
                     "BillingEnd",
@@ -243,14 +226,6 @@ export default async function handler(req, res) {
                 let requestTx
                 try {
                     // Initiate the on-chain request after all listeners are initialized
-                    // requestTx = await rainOracleContract.executeRequest(
-                    //     request.source,
-                    //     request.secrets ?? [],
-                    //     request.args ?? [],
-                    //     subscriptionId,
-                    //     gasLimit,
-                    //     overrides
-                    // )
                     requestTx = await rainProductContract.triggerOracle(
                         policyId,
                         request.secrets ?? [],
@@ -262,7 +237,8 @@ export default async function handler(req, res) {
                     if (doGistCleanup) {
                         await deleteGist(process.env["GITHUB_API_TOKEN"], request.secretsURLs[0].slice(0, -4))
                     }
-                    throw error
+                    res.status(500).json({ error });
+                    //throw error
                 }
                 spinner.start("Waiting 2 blocks for transaction to be confirmed...")
                 const requestTxReceipt = await requestTx.wait(2)
@@ -292,13 +268,15 @@ export default async function handler(req, res) {
                     DONPublicKey: requestConfig.DONPublicKey,
                 })
                 // If a response is not received in time, the request has exceeded the Service Level Agreement
-                setTimeout(async () => {
-                    spinner.fail(
-                        "A response has not been received within 5 minutes of the request being initiated and has been canceled. Your subscription was not charged. Please make a new request."
-                    )
-                    await store.update(requestId, { status: "pending_timed_out" })
-                    reject()
-                }, 300_000) // TODO: use registry timeout seconds
+                // setTimeout(async () => {
+                //     spinner.fail(
+                //         "A response has not been received within 5 minutes of the request being initiated and has been canceled. Your subscription was not charged. Please make a new request."
+                //     )
+                //     await store.update(requestId, { status: "pending_timed_out" })
+                //     reject()
+                // }, 300_000) // TODO: use registry timeout seconds
+
+                res.status(200).json({ requestTxReceipt });
 
             })
 

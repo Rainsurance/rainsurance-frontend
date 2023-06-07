@@ -9,6 +9,7 @@ import {
     ContainerBodyItem,
     Status,
     EnvStatus,
+    EnvStatusWrap,
 } from "@/styles/policies";
 
 import IconPlane from '../../../public/icons/icon-plane-black.png';
@@ -39,56 +40,60 @@ const PolicyBox = ({item, confirmationDialog, handleOpenModal}) => {
                         height={19}
                         alt="IconPlane"
                     />
-                    {item.city.name}
+                    { item.city.name }
                 </h3>
                 <EnvStatus>
-                    <Status
-                        content={`'${item.style['label']}'`}
-                        color={item.style["color"]}
-                    />
-                    { item.style["filter"] && 
-                        <Image
-                            style={{
-                                filter: item.style["filter"],
-                            }}
-                            src={IconTooltip}
-                            width={13}
-                            height={13}
-                            alt="See details"
-                            onClick={() => handleOpenModal(item)}
-                        />
+                    { item.style.label && (
+                        <EnvStatusWrap>
+                            <Status
+                                content={ `'${item.style.label}'` }
+                                color={ item.style.color }
+                            />
+                            { item.style.filter && 
+                                <Image
+                                    style={{
+                                        filter: item.style.filter,
+                                    }}
+                                    src={IconTooltip}
+                                    width={13}
+                                    height={13}
+                                    alt="See details"
+                                    onClick={() => handleOpenModal(item)}
+                                />
+                            }
+                        </EnvStatusWrap>)
                     }
+                    {item.style.processable && (
+                        <Link
+                            href=""
+                            onClick={() =>
+                                confirmationDialog(
+                                    "Process confirmation",
+                                    "Are you sure you want to check the weather for this policy?",
+                                    item,
+                                    "process"
+                                )
+                            }
+                        >
+                            Process
+                        </Link>
+                    )}
+                    {item.style.claimable && (
+                        <Link
+                            href=""
+                            onClick={() =>
+                                confirmationDialog(
+                                    "Claim confirmation",
+                                    "Are you sure you want to claim this policy?",
+                                    item,
+                                    "claim"
+                                )
+                            }
+                        >
+                            Claim
+                        </Link>
+                    )}
                 </EnvStatus>
-                {item.style["processable"] && (
-                    <Link
-                        href=""
-                        onClick={() =>
-                            confirmationDialog(
-                                "Process confirmation",
-                                "Are you sure you want to check the weather for this policy?",
-                                item,
-                                "process"
-                            )
-                        }
-                    >
-                        Process
-                    </Link>
-                )}
-                {item.style["claimable"] && (
-                    <Link
-                        href=""
-                        onClick={() =>
-                            confirmationDialog(
-                                "Claim confirmation",
-                                "Are you sure you want to claim this policy?",
-                                item,
-                                "claim"
-                            )
-                        }
-                    >
-                        Claim
-                    </Link>
-                )}
             </ContainerItemTop>
             <ContainerBody>
                 <ContainerBodyItem>
@@ -104,8 +109,8 @@ const PolicyBox = ({item, confirmationDialog, handleOpenModal}) => {
                             alt="Period"
                         />
                         <p>
-                            {item.startDate} <br />
-                            {item.endDate}
+                            { item.startDate } <br />
+                            { item.endDate }
                         </p>
                     </ContainerCalendar>
                     <ContainerRain>
@@ -119,7 +124,7 @@ const PolicyBox = ({item, confirmationDialog, handleOpenModal}) => {
                             height={25}
                             alt="Average Precipitation"
                         />
-                        <p>{item.avgPrec} mm</p>
+                        <p>{ item.avgPrec } mm</p>
                     </ContainerRain>
                     <ContainerCoin>
                         <Image
@@ -132,7 +137,7 @@ const PolicyBox = ({item, confirmationDialog, handleOpenModal}) => {
                             height={25}
                             alt="Premium/Insured"
                         />
-                        <p>{item.sumInsuredUSD}</p>
+                        <p>{ item.sumInsuredUSD }</p>
                     </ContainerCoin>
                 </ContainerBodyItem>
             </ContainerBody>

@@ -58,7 +58,8 @@ export default async function handler(req, res) {
                 (lng * coordinatesMultiplier).toFixed(0),
                 Number(process.env.RISK_TRIGGER) * percentageMultiplier,
                 Number(process.env.RISK_EXIT) * percentageMultiplier,
-                Math.round(avgPrec) * precipitationMultiplier
+                Math.round(avgPrec) * precipitationMultiplier,
+                precDays,
             );
             console.log(tx);
             res.status(200).json({ tx });

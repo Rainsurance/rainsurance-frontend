@@ -106,25 +106,18 @@ const FormCheckout = ({ setSimulation, simulation }) => {
         },
     });
 
-    const { config } = usePrepareContractWrite({
+    const { write: approve } = useContractWrite({
         address: process.env.NEXT_PUBLIC_USDC_ADDRESS,
         abi: erc20ABI,
         functionName: "approve",
-        args: [
-            process.env.NEXT_PUBLIC_INSTANCE_TREASURY_ADDRESS,
-            //ethers.parseUnits(simulation.premium, 6), //v6
-            ethers.utils.parseUnits(simulation.premium, 6), //v5
-        ],
-    });
-
-    const { write: approve } = useContractWrite({
-        ...config,
+        enabled: false,
         onError(error) {
             console.log("approve onError", error);
             setSubmitting(false);
             setStep(3);
         },
-        onMutate() {
+        onMutate({ args, overrides }) {
+            console.log("approve onMutate", { args, overrides });
             setSubmitting(true);
             setStep(4);
         },
@@ -195,7 +188,12 @@ const FormCheckout = ({ setSimulation, simulation }) => {
             return;
         }
         if (step <= 5) {
-            approve();
+            approve({
+                args: [
+                    process.env.NEXT_PUBLIC_INSTANCE_TREASURY_ADDRESS,
+                    ethers.utils.parseUnits("100", 6),
+                ],
+            });
         }
     }
 
@@ -214,7 +212,11 @@ const FormCheckout = ({ setSimulation, simulation }) => {
             applyForPolicy();
         }
         if (step == 7) {
-            router.push("/policies");
+            setSubmitting(true);
+            setTimeout(() => {
+                router.push("/policies");
+            }, 5000);
+            
         }
     }, [step]);
 
@@ -352,7 +354,7 @@ const FormCheckout = ({ setSimulation, simulation }) => {
                         {step == 4 &&
                             "Please confirm the transaction in your wallet"}
                         {(step == 5 || step == 6) && "Please wait..."}
-                        {step == 7 && "Done!"}
+                        {step == 7 && "Done! You will be redirected in few seconds!"}
                     </button>
                 </form>
             </OverlayScrollbarsComponent>

@@ -30,11 +30,10 @@ async function run() {
 
 async function historybasic(lat, lng, startDate, endDate, apiKey) {
 
-    const requestUrl = 'https://my.meteoblue.com/packages/historybasic-1h?lat='+lat+'&lon='+lng+'&startdate='+startDate+'&enddate='+endDate+'&format=json&apikey='+apiKey;
+    const requestUrl = `https://my.meteoblue.com/packages/historybasic-1h?lat=${lat}&lon=${lng}&startdate=${startDate}&enddate=${endDate}&format=json&apikey=${apiKey}`;
     const response = await Functions.makeHttpRequest({
         url: requestUrl,
-    })
-    //console.log(requestUrl);
+    });
 
     if (!response.error_message) {
         const chunkSize = 24; // 24 hours in a day
@@ -59,9 +58,12 @@ async function historybasic(lat, lng, startDate, endDate, apiKey) {
             }
         });
 
-        return {precAvg, precDays, error: false};
+        // Probability of rain in this period
+        const precProbability = precDays / days;
+
+        return {precAvg, precDays, precProbability, error: false};
     } else {
-        return {precAvg: 0, precDays: 0, error: true, error_message: data.error_message};
+        return {precAvg: 0, precDays: 0, precProbability: 0, error: true, error_message: data.error_message};
     }
 
 };
