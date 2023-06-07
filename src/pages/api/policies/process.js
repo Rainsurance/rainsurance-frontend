@@ -81,7 +81,7 @@ export default async function handler(req, res) {
         var { policyId } = req.body;
 
         let functionPath;
-        if(process.env.CHAINLINK_FUNCIONS_DEBUG) {
+        if(process.env.CHAINLINK_FUNCIONS_DEBUG === "true") {
             functionPath = `${process.cwd()}/src/lib/meteoblue.functions.debug.js`
         } else {
             functionPath = `${process.cwd()}/src/lib/meteoblue.functions.min.js`

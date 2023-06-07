@@ -228,7 +228,7 @@ const PoliciesView = () => {
     const [connectMessage, setConnectMessage] = useState("");
     const [selectedItem, setSelectedItem] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
-    const [limit] = useState(1);
+    const [limit] = useState(10);
     const { address } = useAccount();
 
     async function getPoliceIds(walletAddress) {
