@@ -23,6 +23,7 @@ import InstanceServiceAbi from "../utils/InstanceService.json";
 import { destinations } from "../utils/destinations";
 
 const precipitationMultiplier = Number(process.env.NEXT_PUBLIC_PRECIPITATION_MULTIPLIER);
+const percentageMultiplier = Number(process.env.NEXT_PUBLIC_PERCENTAGE_MULTIPLIER);
 const usdcMultiplier = 1e6;
 const USDollar = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -43,7 +44,8 @@ const ICON_GREEN = '/icons/icon-approved.png'
 const ICON_RED = '/icons/icon-rejected.png'
 
 function b2s(input) {
-    return ethers.decodeBytes32String(input);
+    //return ethers.decodeBytes32String(input); //v5
+    return ethers.utils.parseBytes32String(input); //v6
 }
 
 function formatDate(timestamp) {
@@ -54,89 +56,7 @@ function isFutureDate(timestamp) {
     return timestamp * 1000 > new Date().getTime();
 }
 
-function policyStyle(status) {
-    switch (status) {
-        case 1:
-            return {
-                label: "Policy is active",
-                color: COLOR_BLUE,
-                processable: false,
-                claimable: false,
-                filter: "",
-                modal: false,
-            }
-        case 2:
-            return {
-                label: "",
-                color: "",
-                processable: true,
-                claimable: false,
-                filter: "",
-                modal: false,
-            }
-        case 3:
-            return {
-                label: "Checking weather...",
-                color: COLOR_BLUE,
-                processable: false,
-                claimable: false,
-                filter: FILTER_BLUE,
-                modal: "Please wait a few moments. We are gathering precipitation data from our weather Oracle (Chainlink + MeteoBlue)",
-                modalIcon: ICON_BLUE,
-            }
-        case 4:
-            return {
-                label: "Risk approved",
-                color: COLOR_GREEN,
-                processable: false,
-                claimable: true,
-                filter: FILTER_GREEN,
-                modal: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-                modalIcon: ICON_GREEN,
-            }
-        case 5:
-            return {
-                label: "Risk rejected",
-                color: COLOR_RED,
-                processable: false,
-                claimable: false,
-                filter: FILTER_RED,
-                modal: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-                modalIcon: ICON_RED,
-            }
-        case 6:
-            return {
-                label: "Processing payout...",
-                color: COLOR_RED,
-                processable: false,
-                claimable: false,
-                filter: "",
-                modal: false,
-            }
-        case 7:
-            return {
-                label: "Payout processed",
-                color: COLOR_GREEN,
-                processable: false,
-                claimable: false,
-                filter: "",
-                modal: false,
-            }
-        default:
-            return {
-                label: "Under review", //TODO
-                color: COLOR_GRAY,
-                processable: false,
-                claimable: false,
-                filter: "",
-                modal: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-                modalIcon: ICON_RED,
-                canceled: true,
-            }
-      }
-}
-
-function policyState(data) {
+function policyState(policy) {
 
     // ApplicationState {Applied, Revoked, Underwritten, Declined}
     // PolicyState {Active, Expired, Closed}
@@ -158,38 +78,105 @@ function policyState(data) {
     //  8  (C) application_declined_revoked -> ApplicationState.Revoked_Declined(1_3) -> gray / no action
 
     let status;
-    const policyActive = isFutureDate(Number(data.endDate));
-    if (data.application.state == 0) {
+    let style = {
+        label: "",
+        color: COLOR_BLUE,
+        processable: false,
+        claimable: false,
+        canceled: false,
+        filter: false,
+        modal: false,
+        modalIcon: "",
+    }
+    if (policy.application.state == 0) {
         status = 0;
-    } else if (data.application.state == 2) {
-        if (policyActive) {
+        style = {...style,
+            label: "Under review",
+            color: COLOR_GRAY,
+            canceled: true,
+        };
+    } else if (policy.application.state == 2) {
+        if (policy.isActive) {
             status = 1;
-        } else if (data.risk.requestTriggered == false) {
+            style = {...style,
+                label: "Policy is active",
+                color: COLOR_BLUE,
+            };
+        } else if (policy.risk.requestTriggered == false) {
             status = 2;
-        } else if (data.risk.requestTriggered == true) {
-            if (data.risk.responseAt == 0) {
+            style = {...style,
+                processable: true,
+            };
+        } else if (policy.risk.requestTriggered == true) {
+            if (policy.risk.responseAt == 0) {
                 status = 3;
-            } else if (data.risk.responseAt > 0) {
-                if (data.risk.payoutPercentage > 0) {
-                    if (data.claimsCount == 0) {
+                style = {...style,
+                    label: "Checking weather...",
+                    color: COLOR_BLUE,
+                    filter: FILTER_BLUE,
+                    modal: "Please wait a few moments. We are gathering weather data from our partners (Chainlink & MeteoBlue)",
+                    modalIcon: ICON_BLUE,
+                };
+            } else if (policy.risk.responseAt > 0) {
+                const defaultModalText = `It rained for ${policy.risk.precDaysActual} day(s) during the period covered by this policy.
+                    The average daily rainfall was ${policy.risk.precActual}mm. <br />
+                    The condition for executing the policy is: ${policy.risk.precDays} or more rainy days with a daily rain average of ${policy.risk.precHist}mm.`;
+                if (policy.risk.payoutPercentage > 0) {
+                    if (policy.claimsCount == 0) {
                         status = 4;
+                        style = {...style,
+                            label: "Risk approved",
+                            color: COLOR_GREEN,
+                            filter: FILTER_GREEN,
+                            modal: `${defaultModalText} <br />
+                                Thus you are entitled to a refund of ${policy.refundUSD}. <br />
+                                Please claim the refund by clicking in the button below.`,
+                            modalIcon: ICON_GREEN,
+                            claimable: true,
+                        };
                     } else {
-                        if (data.details.state == 0) {
+                        if (policy.details.state == 0) {
                             status = 6;
+                            style = {...style,
+                                label: "Processing payout...",
+                                color: COLOR_BLUE,
+                                filter: FILTER_BLUE,
+                            };
                         } else {
                             status = 7;
+                            style = {...style,
+                                label: "Payout processed",
+                                color: COLOR_GREEN,
+                                filter: FILTER_GREEN,
+                                modal: `Please check you wallet. You should have already received your refund.`,
+                                modalIcon: ICON_GREEN,
+                            };
                         }
                     }
                 } else {
                     status = 5;
+                    style = {...style,
+                        label: "Risk rejected",
+                        color: COLOR_RED,
+                        filter: FILTER_RED,
+                        modal: `${defaultModalText} <br />
+                            Thus you are not entitled to a refund.`,
+                        modalIcon: ICON_RED,
+                    };
                 }
                 
             }
         }
     } else {
         status = 8;
+        style = {
+            label: "Under review",
+            color: COLOR_GRAY,
+            canceled: true,
+        };
     }
-    return status;
+
+    return {status, style};
 }
 
 function preparePolicy(data) {
@@ -201,10 +188,10 @@ function preparePolicy(data) {
 
     const sumInsured = Number(data.sumInsured) / usdcMultiplier;
     const sumInsuredUSD = USDollar.format(sumInsured);
-    const status = policyState(data);
-    const style = policyStyle(status);
+    const refund = Number(sumInsured) * Number(data.risk.payoutPercentage);
+    const refundUSD = USDollar.format(refund);
 
-    return {
+    const policy = {
         processId: data.processId,
         riskId: data.riskId,
         city,
@@ -214,12 +201,22 @@ function preparePolicy(data) {
         endDate: formatDate(Number(data.endDate)),
         sumInsured,
         sumInsuredUSD,
+        refund,
+        refundUSD,
         avgPrec: Number(data.precHist) / precipitationMultiplier,
         isActive: isFutureDate(Number(data.endDate)),
         risk: data.risk,
         application: data.application,
         details: data.details,
-        claimsCount: data.claimsCount,
+        claimsCount: Number(data.claimsCount),
+    }
+    
+    const {status, style} = policyState(policy);
+
+    return {
+        ...policy,
+        status,
+        style
     };
 }
 
@@ -311,7 +308,13 @@ const PoliciesView = () => {
         .then(([policy, risk]) => {
             console.log(`DONE! RISK for policy ${policy.processId} is:`);
             console.log(risk);
-            return {...policy, risk};
+            return {...policy, 
+                        risk: {...risk, 
+                            precActual: Number(risk.precActual) / precipitationMultiplier,
+                            precHist: Number(risk.precHist) / precipitationMultiplier,
+                            payoutPercentage: Number(risk.payoutPercentage) / percentageMultiplier,
+                        }
+                    };
         })
     }
 
@@ -369,18 +372,17 @@ const PoliciesView = () => {
         } else {
             policy.claimsCount += 1;
         }
-        const status = policyState(policy);
-        const style = policyStyle(status);
+        const {status, style} = policyState(policy);
         addPolicy({ ...policy, status, style });
         const response = await fetch(`/api/policies/${endpoint}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ policyId: policy.processId }),
+            body: JSON.stringify({ policyId: policy.processId, riskId: policy.riskId }),
         });
         const data = await response.json();
-        console.log("tx", data);
+        console.log("requestTxReceipt", data);
         setClaiming(false);
     }
 
@@ -457,11 +459,11 @@ const PoliciesView = () => {
                     escapeClose={false}
                 >
                     <ModalCStatus>
-                        <H3Modal colorStatus={selectedItem?.style["color"]}>
-                            <img src={selectedItem?.style["modalIcon"]} alt="status" />
-                            { selectedItem?.style["label"] }
+                        <H3Modal colorStatus={selectedItem?.style.color}>
+                            <img src={selectedItem?.style.modalIcon} alt="status" />
+                            { selectedItem?.style.label }
                         </H3Modal>
-                        <p>{selectedItem?.style["modal"]}</p>
+                        <p dangerouslySetInnerHTML={{__html: selectedItem?.style.modal}} />
                         </ModalCStatus>
                 </Modal>
             </Policies>

@@ -808,6 +808,11 @@
             "internalType": "uint256",
             "name": "precHist",
             "type": "uint256"
+        },
+        {
+            "internalType": "uint256",
+            "name": "precDays",
+            "type": "uint256"
         }
     ],
     "name": "adjustRisk",
@@ -910,7 +915,17 @@
         },
         {
             "internalType": "uint256",
+            "name": "precDays",
+            "type": "uint256"
+        },
+        {
+            "internalType": "uint256",
             "name": "precActual",
+            "type": "uint256"
+        },
+        {
+            "internalType": "uint256",
+            "name": "precDaysActual",
             "type": "uint256"
         }
     ],
@@ -1036,6 +1051,11 @@
         {
             "internalType": "uint256",
             "name": "precHist",
+            "type": "uint256"
+        },
+        {
+            "internalType": "uint256",
+            "name": "precDays",
             "type": "uint256"
         }
     ],

@@ -1,7 +1,16 @@
-import RainProductAbi from "../utils/RainProduct.json";
+import RainProductAbi from "../utils/RainProductCLFunctions.json";
+import RainOracleAbi from "../utils/RainOracleCLFunctions.json";
+import CLFunctionsOracleAbi from "../utils/CLFunctionsOracle.json";
+import CLFunctionsBillingRegistryAbi from "../utils/CLFunctionsBillingRegistry.json";
 import { ethers } from "ethers";
 
-const provider = new ethers.JsonRpcProvider(
+//v6
+// const provider = new ethers.JsonRpcProvider(
+//     process.env.NEXT_PUBLIC_INFURA_URL
+// );
+
+//v5
+const provider = new ethers.providers.JsonRpcProvider(
     process.env.NEXT_PUBLIC_INFURA_URL
 );
 
@@ -10,11 +19,26 @@ const signer = new ethers.Wallet(
     provider
 );
 
-const rainProductContract = new ethers.Contract(
+export const rainProductContract = new ethers.Contract(
     process.env.NEXT_PUBLIC_RAIN_PRODUCT_ADDRESS,
     RainProductAbi,
     signer
 );
 
+export const rainOracleContract = new ethers.Contract(
+    process.env.NEXT_PUBLIC_RAIN_ORACLE_ADDRESS,
+    RainOracleAbi,
+    signer
+);
 
-export default rainProductContract;
+export const oracle = new ethers.Contract(
+    process.env.CHAINLINK_FUNCTIONS_ORACLE_ADDRESS,
+    CLFunctionsOracleAbi,
+    signer
+);
+
+export const registry = new ethers.Contract(
+    process.env.CHAINLINK_FUNCTIONS_REGISTRY_ADDRESS,
+    CLFunctionsBillingRegistryAbi,
+    signer
+);

@@ -19,7 +19,7 @@ export default async function handler(req, res) {
         .toISOString()
         .slice(0, 10);
 
-    const response = await historybasic(lat, long, startdateFormatted, enddateFormattted);
+    const response = await historybasic(lat, long, startdateFormatted, enddateFormattted, process.env.METEOBLUE_API_KEY);
     console.log(response);
 
     const days = Math.round((enddate - startdate) / (24 * 60 * 60));

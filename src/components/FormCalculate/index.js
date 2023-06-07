@@ -35,7 +35,8 @@ function FormCalculate({ setModalOpen, setSimulation }) {
     const [calculating, setCalculating] = useState(false);
 
     function s2b(input) {
-        return ethers.encodeBytes32String(slugify(input));
+        //return ethers.encodeBytes32String(slugify(input)); //ethers v6
+        return ethers.utils.formatBytes32String(slugify(input)); //ethers v5
     }
 
     function currentTimestampUTC(date) {

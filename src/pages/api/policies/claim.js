@@ -1,4 +1,4 @@
-import rainProductContract from "../../../lib/rainProduct";
+import { rainProductContract } from "../../../lib/rainProduct";
 
 export default async function handler(req, res) {
     // POST /api/policies/claim

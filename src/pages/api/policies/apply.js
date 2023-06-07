@@ -5,7 +5,7 @@ import connectDB from "../../../lib/connectDB";
 import Policy from "../../../lib/schemas/policySchema";
 import Customer from "../../../lib/schemas/customerSchema";
 import Risk from "../../../lib/schemas/riskSchema";
-import rainProductContract from "../../../lib/rainProduct";
+import { rainProductContract } from "../../../lib/rainProduct";
 import { sendPolicyMail } from "../../../lib/aws-ses";
 
 export default async function handler(req, res) {
@@ -47,8 +47,8 @@ export default async function handler(req, res) {
             return;
         }
 
-        const premiumBigNumber = ethers.parseUnits(premium, 6);
-        const sumInsuredBigNumber = ethers.parseUnits(sumInsured, 6);
+        const premiumBigNumber = ethers.utils.parseUnits(premium, 6);
+        const sumInsuredBigNumber = ethers.utils.parseUnits(sumInsured, 6);
 
         let processId = "";
 

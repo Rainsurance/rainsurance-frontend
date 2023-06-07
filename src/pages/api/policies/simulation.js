@@ -72,7 +72,7 @@ export default async function handler(req, res) {
             const enddateFormattted = new Date(pastEndDate).toISOString().slice(0, 10);
             
             try {
-                simulation.push(await historybasic(lat, lng, startdateFormattted, enddateFormattted));
+                simulation.push(await historybasic(lat, lng, startdateFormattted, enddateFormattted, process.env.METEOBLUE_API_KEY));
             } catch (error) {
                 console.log(error);
                 res.status(500).json({ error: error });
