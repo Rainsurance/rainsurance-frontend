@@ -10,15 +10,23 @@ import { ethers } from "ethers";
 import slugify from "react-slugify";
 import { useAccount } from "wagmi";
 
+Date.prototype.addDays = function(days) {
+    var date = new Date(this.valueOf());
+    date.setDate(date.getDate() + days);
+    return date;
+}
+
 const createUseFormSchema = z.object({
     destination: z.string().nonempty("Destination city is required"),
     startDate: z
-        .date()
-        .optional()
-        .refine((date) => date != null, {
-            message: "Arrival date is required",
+        .date({
+            required_error: "Arrival date is required",
+        })
+        //.refine((date) => date > (new Date()).addDays(21), {
+        .refine((date) => (date < new Date() || date > (new Date()).addDays(21)), {
+            message: "Arrival date is too close (min 21 days ahead)",
         }),
-    days: z.string().nonempty("The number of days is required"),
+    days: z.string().nonempty("Number of days is required"),
     amount: z.string().nonempty("Coverege amount is required"),
 });
 
@@ -53,6 +61,7 @@ function FormCalculate({ setModalOpen, setSimulation }) {
         }
         const placeId = s2b(`${place.id} ${place.name}`);
         //const startDateTimestamp = new Date(startDate).getTime();
+        console.log("startDate is", startDate)
         const startDateTimestamp = currentTimestampUTC(new Date(startDate))
         const simulation = {
             startDate: startDateTimestamp,
