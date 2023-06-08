@@ -287,7 +287,7 @@ const FormCheckout = ({ setSimulation, simulation }) => {
                                     height={18}
                                     alt="Wallet"
                                 />
-                                <p>C.Credit</p>
+                                <p>Credit Card</p>
                             </ClickPayment>
                         </EnvClickPayment>
                         <PaymentItem active={activeButton === 0}>
