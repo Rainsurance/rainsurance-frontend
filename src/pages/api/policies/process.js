@@ -1,5 +1,6 @@
 const fs = require("fs");
-const process = require("process");
+const path = require("path")
+const process = require("process")
 import { ethers } from "ethers";
 import {rainProductContract, rainOracleContract, oracle, registry} from "../../../lib/rainProduct";
 const { RequestStore } = require("../../../lib/FunctionsSandboxLibrary/utils/artifact");
@@ -80,17 +81,33 @@ export default async function handler(req, res) {
     if (req.method === "POST") {
         var { policyId } = req.body;
 
-        let functionPath;
+        let functionFile;
         if(process.env.CHAINLINK_FUNCIONS_DEBUG === "true") {
-            functionPath = `${process.cwd()}/src/lib/meteoblue.functions.debug.js`
+            functionFile = `meteoblue.functions.debug.js`
         } else {
-            functionPath = `${process.cwd()}/src/lib/meteoblue.functions.min.js`
+            functionFile = `meteoblue.functions.min.js`
         }
+        console.log(0);
+        console.log(functionFile);
+        console.log(1);
+        console.log(`__dirname: ${__dirname}`);
+        console.log(2);
+        console.log(`process.cwd(): ${process.cwd()}`);
+        console.log(3);
+        console.log(functionFile);
+        console.log(4);
+        const functionPath = path.join(process.cwd(), 'src', 'lib', functionFile);
+        console.log(functionPath);
+        console.log(5);
+        const fileContents = fs.readFileSync(functionPath, 'utf8').toString();
+        console.log(fileContents);
+        console.log(6);
+        return;
 
         const unvalidatedRequestConfig = {
             codeLocation: Location.Inline,
             codeLanguage: CodeLanguage.JavaScript,
-            source: fs.readFileSync(functionPath).toString(),
+            source: fileContents,
             secrets: { apiKey: process.env.METEOBLUE_API_KEY ?? "" },
             perNodeSecrets: [],
             walletPrivateKey: process.env.ORACLE_PROVIDER_PRIVATE_KEY,
