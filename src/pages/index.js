@@ -10,7 +10,7 @@ const Home = () => {
     const [modalCheckoutOpen, setModalCheckoutOpen] = useState(false);
 
     return (
-        <Layout>
+        <Layout title="Home">
             <FormCalculate
                 setModalOpen={setModalOpen}
                 setSimulation={setSimulation}

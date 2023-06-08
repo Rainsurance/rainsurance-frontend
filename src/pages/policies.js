@@ -436,7 +436,7 @@ const PoliciesView = () => {
     }, [policies]);
 
     return (
-        <Layout>
+        <Layout title="Policies">
             <Policies>
                 <h2>Policies</h2>
                 { loading && <Loading /> }

@@ -61,7 +61,6 @@ function FormCalculate({ setModalOpen, setSimulation }) {
         }
         const placeId = s2b(`${place.id} ${place.name}`);
         //const startDateTimestamp = new Date(startDate).getTime();
-        console.log("startDate is", startDate)
         const startDateTimestamp = currentTimestampUTC(new Date(startDate))
         const simulation = {
             startDate: startDateTimestamp,

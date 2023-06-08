@@ -9,7 +9,7 @@ import {
 const StakeView = () => {
 
     return (
-        <Layout>
+        <Layout title="Stake">
             <Policies>
                 <h2>Stake</h2>
                 <BackupText>This feature is coming soon.</BackupText>
