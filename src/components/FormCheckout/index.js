@@ -124,7 +124,7 @@ const FormCheckout = ({ setSimulation, simulation }) => {
         onSuccess(data) {
             console.log("approve onSuccess", { data });
             setSubmitting(false);
-            setStep(7); //TODO: change back to 5
+            setStep(5);
         },
     });
 
