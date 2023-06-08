@@ -14,7 +14,7 @@ const nextConfig = {
     outputFileTracing: true,
     outputFileTracingRoot: path.join(__dirname, '../../'),
     outputFileTracingIncludes: {
-      '/lib': ['./src/lib/*'],
+      '/api/policies/process': ['./src/lib/*'],
     },
   }
 };
