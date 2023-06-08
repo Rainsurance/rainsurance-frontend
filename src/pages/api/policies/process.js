@@ -83,235 +83,32 @@ export default async function handler(req, res) {
 
         let functionFile;
         if(process.env.CHAINLINK_FUNCIONS_DEBUG === "true") {
-            functionFile = `meteoblue.functions.debug.js`
+            functionFile = `meteoblue.functions.debug.min.js`
         } else {
             functionFile = `meteoblue.functions.min.js`
         }
-        console.log(0);
-        console.log(functionFile);
-        console.log(1);
-        console.log(`__dirname: ${__dirname}`);
-        console.log(2);
-        console.log(`process.cwd(): ${process.cwd()}`);
-        console.log(3);
-        console.log(functionFile);
-        console.log(4);
+        let functionPath = path.join(process.cwd(), 'src', 'lib', functionFile);
 
         let fileContents;
+        try {
+            fileContents = fs.readFileSync(`${functionPath}`, 'utf8').toString();
+            console.log("loaded function from file");
 
-        let functionPath = path.join(process.cwd(), 'src', 'lib', functionFile);
-        console.log(functionPath);
-        try {
-            console.log(5);
-            fileContents = fs.readFileSync(`./${functionPath}`, 'utf8').toString();
         } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(6);
-            fileContents = fs.readFileSync(`./../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(7);
-            fileContents = fs.readFileSync(`./../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(8);
-            fileContents = fs.readFileSync(`./../../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(9);
-            fileContents = fs.readFileSync(`./../../../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(10);
-            fileContents = fs.readFileSync(`./../../../../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(11);
-            fileContents = fs.readFileSync(`./../../../../../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(12);
-            fileContents = fs.readFileSync(`./../../../../../../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(13);
-            fileContents = fs.readFileSync(`./../../../../../../../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(14);
-            fileContents = fs.readFileSync(`./../../../../../../../../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(15);
-            fileContents = fs.readFileSync(`./../../../../../../../../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
+            //TODO: need to figure out how to handle the path problem in vercel deployment
+            // https://github.com/vercel/next.js/issues/8251
 
-        functionPath = `lib/${functionFile}`;
-        console.log(functionPath);
-        try {
-            console.log(5);
-            fileContents = fs.readFileSync(`./${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
+            console.log("failed to load function from file");
+            if(process.env.CHAINLINK_FUNCIONS_DEBUG === "true") {
+                fileContents = `async function run(){const r=Number(args[0]),e=Number(args[1]),s=Number(args[4]),n=Number(args[5]);var t=Number(args[2])/s,o=Number(args[3])/s;if(!secrets.apiKey)throw Error();console.log(t,o,r,e,s,n);const a=new Date(1e3*r).toISOString().slice(0,10),c=new Date(1e3*e).toISOString().slice(0,10),i=await historybasic(t,o,a,c,secrets.apiKey);if(i.error)throw Error(i.error_message);{const r=Math.round(i.precAvg*n),e=i.precDays;return Buffer.concat([Functions.encodeUint256(r),Functions.encodeUint256(e)])}}
+async function historybasic(t,a,e,r,i){return{precAvg:10,precDays:(await Functions.makeHttpRequest({url:"https://my.meteoblue.com/packages/historybasic-1h?lat="+t+"&lon="+a+"&startdate="+e+"&enddate="+r+"&format=json&apikey="+i})).data.history_1h.precipitation.length/24,precProbability:0,error:!1}}
+return run();`
+            } else {
+                fileContents = `async function run(){const r=Number(args[0]),e=Number(args[1]),s=Number(args[4]),n=Number(args[5]);var t=Number(args[2])/s,o=Number(args[3])/s;if(!secrets.apiKey)throw Error();console.log(t,o,r,e,s,n);const a=new Date(1e3*r).toISOString().slice(0,10),c=new Date(1e3*e).toISOString().slice(0,10),i=await historybasic(t,o,a,c,secrets.apiKey);if(i.error)throw Error(i.error_message);{const r=Math.round(i.precAvg*n),e=i.precDays;return Buffer.concat([Functions.encodeUint256(r),Functions.encodeUint256(e)])}}
+async function historybasic(e,r,t,a,s){const o="https://my.meteoblue.com/packages/historybasic-1h?lat="+e+"&lon="+r+"&startdate="+t+"&enddate="+a+"&format=json&apikey="+s,c=await Functions.makeHttpRequest({url:o});if(c.error_message)return{precAvg:0,precDays:0,error:!0,error_message:data.error_message};{const e=24,r=c.data.history_1h.precipitation,t=r.length/e,a=r.reduce(((e,r)=>e+r),0)/t,s=[];for(let t=0;t<r.length;t+=e){const a=r.slice(t,t+e);s.push(a)}let o=0;return s.forEach((e=>{e.reduce(((e,r)=>e+r),0)>0&&o++})),{precAvg:a,precDays:o,error:!1}}}
+return run();`
+            }
         }
-        try {
-            console.log(6);
-            fileContents = fs.readFileSync(`./../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(7);
-            fileContents = fs.readFileSync(`./../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(8);
-            fileContents = fs.readFileSync(`./../../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(9);
-            fileContents = fs.readFileSync(`./../../../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(10);
-            fileContents = fs.readFileSync(`./../../../../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(11);
-            fileContents = fs.readFileSync(`./../../../../../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(12);
-            fileContents = fs.readFileSync(`./../../../../../../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(13);
-            fileContents = fs.readFileSync(`./../../../../../../../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(14);
-            fileContents = fs.readFileSync(`./../../../../../../../../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(15);
-            fileContents = fs.readFileSync(`./../../../../../../../../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-
-        functionPath = `src/lib/${functionFile}`;
-        console.log(functionPath);
-        try {
-            console.log(5);
-            fileContents = fs.readFileSync(`./${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(6);
-            fileContents = fs.readFileSync(`./../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(7);
-            fileContents = fs.readFileSync(`./../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(8);
-            fileContents = fs.readFileSync(`./../../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(9);
-            fileContents = fs.readFileSync(`./../../../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(10);
-            fileContents = fs.readFileSync(`./../../../../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(11);
-            fileContents = fs.readFileSync(`./../../../../../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(12);
-            fileContents = fs.readFileSync(`./../../../../../../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(13);
-            fileContents = fs.readFileSync(`./../../../../../../../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(14);
-            fileContents = fs.readFileSync(`./../../../../../../../../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-        try {
-            console.log(15);
-            fileContents = fs.readFileSync(`./../../../../../../../../../${functionPath}`, 'utf8').toString();
-        } catch {
-            console.log("failed");
-        }
-
-        console.log(fileContents);
-        console.log(16);
-
-
-
-        return;
 
         const unvalidatedRequestConfig = {
             codeLocation: Location.Inline,

@@ -1,5 +1,4 @@
 /** @type {import('next').NextConfig} */
-const path = require("path")
 const nextConfig = {
   reactStrictMode: true,
   webpack: config => {
@@ -10,13 +9,6 @@ const nextConfig = {
     // ssr and displayName are configured by default
     styledComponents: true,
   },
-  experimental: { 
-    outputFileTracing: true,
-    outputFileTracingRoot: path.join(__dirname, '../../'),
-    outputFileTracingIncludes: {
-      '/api/policies/process': ['./src/lib/*'],
-    },
-  }
 };
 
 module.exports = nextConfig;
