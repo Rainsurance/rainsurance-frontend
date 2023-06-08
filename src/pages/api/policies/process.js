@@ -98,10 +98,53 @@ export default async function handler(req, res) {
         console.log(4);
         const functionPath = path.join(process.cwd(), 'src', 'lib', functionFile);
         console.log(functionPath);
-        console.log(5);
-        const fileContents = fs.readFileSync(functionPath, 'utf8').toString();
+        let fileContents;
+        try {
+            console.log(5);
+            fileContents = fs.readFileSync(`./${functionPath}`, 'utf8').toString();
+        } catch {}
+        try {
+            console.log(6);
+            fileContents = fs.readFileSync(`./../${functionPath}`, 'utf8').toString();
+        } catch {}
+        try {
+            console.log(7);
+            fileContents = fs.readFileSync(`./../../${functionPath}`, 'utf8').toString();
+        } catch {}
+        try {
+            console.log(8);
+            fileContents = fs.readFileSync(`./../../../${functionPath}`, 'utf8').toString();
+        } catch {}
+        try {
+            console.log(9);
+            fileContents = fs.readFileSync(`./../../../../${functionPath}`, 'utf8').toString();
+        } catch {}
+        try {
+            console.log(10);
+            fileContents = fs.readFileSync(`./../../../../../${functionPath}`, 'utf8').toString();
+        } catch {}
+        try {
+            console.log(11);
+            fileContents = fs.readFileSync(`./../../../../../../${functionPath}`, 'utf8').toString();
+        } catch {}
+        try {
+            console.log(12);
+            fileContents = fs.readFileSync(`./../../../../../../../${functionPath}`, 'utf8').toString();
+        } catch {}
+        try {
+            console.log(13);
+            fileContents = fs.readFileSync(`./../../../../../../../../${functionPath}`, 'utf8').toString();
+        } catch {}
+        try {
+            console.log(14);
+            fileContents = fs.readFileSync(`./../../../../../../../../../${functionPath}`, 'utf8').toString();
+        } catch {}
+        try {
+            console.log(15);
+            fileContents = fs.readFileSync(`./../../../../../../../../../${functionPath}`, 'utf8').toString();
+        } catch {}
         console.log(fileContents);
-        console.log(6);
+        console.log(16);
         return;
 
         const unvalidatedRequestConfig = {
