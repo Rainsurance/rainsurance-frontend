@@ -27,4 +27,32 @@ export const Container = styled.div`
     flex: 1;
     justify-content: center;
   }
+  .footer {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    width: 100%;
+    font-size: 16px;
+    font-family: gothambold;
+    padding: 25px 0;
+    background: #bbb;
+    color: white;
+    align-items: center;
+    text-align: center;
+    overflow-x: auto;
+    overflow-y: hidden;
+    .childWrapper {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    .childWrapper > p {
+      line-height: 1.3;
+    }
+    a {
+      text-decoration: underline;
+      color: white;
+    }
+  }
+  
 `;
