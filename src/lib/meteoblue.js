@@ -6,9 +6,9 @@ const historybasic = async (lat, long, startdate, enddate, apiKey) => {
     const response = await fetch(requestUrl);
     const data = await response.json();
 
-    if (!response.error_message) {
+    if (!data.error_message) {
         const chunkSize = 24;
-        const precipitationArray = response.data.history_1h.precipitation;
+        const precipitationArray = data.history_1h.precipitation;
         const precipitationSum = precipitationArray.reduce((a, b) => a + b, 0);
         const days = precipitationArray.length / chunkSize;
         const precipitationAvg = precipitationSum / days;
