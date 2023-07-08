@@ -8,8 +8,8 @@ const Layout = ({children, title}) => {
     <Container>
      <Header title={`${title} | Rainsurance`}/>
       <main>{children}</main>
-      <div class="footer">
-        <div class="childWrapper">
+      <div className="footer">
+        <div className="childWrapper">
           <p>&copy; 2023 RAINsurance. All rights reserved | Made in Brazil, 2023.</p>
           <p>Don't let the rain ruin your vacation or event!</p>
           <p>
