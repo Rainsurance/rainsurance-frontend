@@ -10,7 +10,7 @@ export const Policies = styled.div`
   h2 {
     font-size: 26px;
     color: #fff;
-    font-family: 'gotham_roundedbold';
+    font-family: 'gotham_roundedbook';
     margin: 40px auto;
     @media ${(props) => props.theme.breakpoints.w1000} {
       margin: 0 auto 40px;

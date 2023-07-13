@@ -22,7 +22,7 @@ export const MenuNav = styled.nav`
     z-index: 1;
     left: 0;
     right: 0;
-    height: 56px;
+    height: 70px;
     border: 1px solid #7aaff9;
   }
 `;
@@ -51,7 +51,6 @@ export const MenuItem = styled.li`
     align-items: center;
     gap: 8px;
     position: relative;
-    padding: 0 0.64px;
     img {
       filter: invert(57%) sepia(6%) saturate(7%) hue-rotate(333deg)
         brightness(87%) contrast(85%);
@@ -65,6 +64,8 @@ export const MenuItem = styled.li`
       &::before {
         display: none;
       }
+      display: flex;
+      flex-direction: column;
     }
     @media ${(props) => props.theme.breakpoints.w400} {
       padding: 0 10px;

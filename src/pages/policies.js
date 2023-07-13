@@ -440,7 +440,7 @@ const PoliciesView = () => {
             <Policies>
                 <h2>Policies</h2>
                 { loading && <Loading /> }
-                { !loading && <BackupText>{ connectMessage }</BackupText> }
+                { !loading && connectMessage && <BackupText>{ connectMessage }</BackupText> }
                 <Container>
                     {policies.map((item) => (
                         <PolicyBox
