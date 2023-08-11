@@ -178,26 +178,22 @@ const BundleView = () => {
   }
 
   useEffect(() => {
+    getBundleIds();
+  }, []);
+
+  useEffect(() => {
+      if (bundleIds) {
+        setConnectMessage("");
+        getBundles();
+      } else {
+        setConnectMessage("No active bundle was found");
+      }
+  }, [bundleIds]);
+
+  useEffect(() => {
     console.log(`Bundles:`);
     console.log(bundles);
   }, [bundles]);
-
-  useEffect(() => {
-    getBundleIds();
-  }, [address]);
-
-  useEffect(() => {
-      if (!address) {
-          setConnectMessage("Please connect your wallet to see active bundles");
-      }
-      if (address && !bundleIds) {
-        setConnectMessage("No active bundle was found");
-      }
-      if (address && bundleIds) {
-          setConnectMessage("");
-          getBundles()
-      }
-  }, [address, bundleIds]);
 
   return (
     <FlexInitial>
