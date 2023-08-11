@@ -237,7 +237,7 @@ const PoliciesView = () => {
         }).then((data) => {
             console.log("all policieIds", data);
             if (data.length > 0){
-                setPoliciesIds(data.length > limit ? data.slice(limit): data)
+                setPoliciesIds(data.length > limit ? data.slice(limit).reverse(): data.reverse())
             } else {
                 setPoliciesIds(null);
             }
