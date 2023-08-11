@@ -14,9 +14,9 @@ export default async function handler(req, res) {
     // inputs: policyHolder (address), premium (uint256), sumInsured (uint256), riskId (bytes32)
     // output: processId (bytes32)
     if (req.method === "POST") {
-        var { premium, sumInsured, riskId, customer } = req.body;
+        var { premium, sumInsured, riskId, bundleId, customer } = req.body;
 
-        console.log(premium, sumInsured, riskId, customer);
+        console.log(premium, sumInsured, riskId, bundleId, customer);
 
         await connectDB();
 
@@ -47,17 +47,18 @@ export default async function handler(req, res) {
             return;
         }
 
-        const premiumBigNumber = ethers.utils.parseUnits(premium, 6);
-        const sumInsuredBigNumber = ethers.utils.parseUnits(sumInsured, 6);
+        const premiumBigNumber = ethers.utils.parseUnits(premium.toString(), 6);
+        const sumInsuredBigNumber = ethers.utils.parseUnits(sumInsured.toString(), 6);
 
         let processId = "";
 
         try {
-            const tx = await rainProductContract.applyForPolicy(
+            const tx = await rainProductContract.applyForPolicyWithBundle(
                 customer.wallet,
                 premiumBigNumber,
                 sumInsuredBigNumber,
-                riskId
+                riskId,
+                bundleId
             );
             processId = tx.hash; //TODO: this is not the processId
         } catch (error) {
@@ -71,6 +72,7 @@ export default async function handler(req, res) {
                 id: v4(),
                 processId,
                 risk: riskDb,
+                bundleId: bundleId,
                 customer: customerDb,
                 walletAddress: customer.wallet,
                 premium,

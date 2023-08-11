@@ -4,7 +4,7 @@ const placeSchema = new mongoose.Schema({
     id: {
         type: String,
     },
-    placeId: {
+    placeSlug: {
         type: String,
     },
     name: {

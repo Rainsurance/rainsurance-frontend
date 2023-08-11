@@ -115,7 +115,8 @@ export default async function handler(req, res) {
         binProb += binProbDistribution[i];
     }
 
-    const premium = amount * binProb * (1 + Number(process.env.FEE_PERCENTAGE)) + Number(process.env.FEE_FIXED_DEFAULT);
+    const premium = amount * binProb;
+    const premiumPlusFees = premium * (1 + Number(process.env.FEE_PERCENTAGE)) + Number(process.env.FEE_FIXED_DEFAULT);
 
     const response = {
         avgPrec: avgPrec.toFixed(1),
@@ -126,6 +127,7 @@ export default async function handler(req, res) {
             n, k, p, distribution: binProbDistribution 
         },
         premium: premium.toFixed(2),
+        premiumPlusFees: premiumPlusFees.toFixed(2),
     }
     
     console.log(response);

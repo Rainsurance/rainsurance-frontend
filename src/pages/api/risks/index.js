@@ -6,7 +6,7 @@ import { rainProductContract } from "../../../lib/rainProduct";
 export default async function handler(req, res) {
     // POST /api/risks
     // RainProduct createRisk
-    // inputs: placeId (bytes32), startDate (uint256), endDate (uint256), lat (int256), long (int256), trigger (uint256), exit (uint256), precHist (uint256)
+    // inputs: startDate (uint256), endDate (uint256), placeSlug (string), lat (int256), long (int256), trigger (uint256), exit (uint256), precHist (uint256)
     // output: riskId (bytes32)
     if (req.method === "POST") {
         var { place, startDate, endDate, days, lat, lng, avgPrec, precDays, riskId } = req.body;
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
             const tx = await rainProductContract.createRisk(
                 startDate / 1000,
                 endDate / 1000,
-                place.placeId,
+                place.placeSlug,
                 (lat * coordinatesMultiplier).toFixed(0),
                 (lng * coordinatesMultiplier).toFixed(0),
                 Number(process.env.RISK_TRIGGER) * percentageMultiplier,

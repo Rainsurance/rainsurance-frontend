@@ -5,4 +5,5 @@ export const destinations = [
     { id: "20001", name: "London", lat: 51.508079, lng: -0.127980, enabled: true },
     { id: "30003", name: "Miami", lat: 25.761527, lng: -80.194972, enabled: true },
     { id: "20002", name: "Rome", lat: 41.902704, lng: 12.496235, enabled: true },
+    { id: "*", name: "Anywhere", lat: null, lng: null, enabled: true, wildcard: true },
 ];

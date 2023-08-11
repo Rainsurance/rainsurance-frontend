@@ -35,7 +35,7 @@ const ModalPremium = ({
                 <h2>
                     Premium:
                     <br />
-                    <span>USD {simulation.premium}</span>
+                    <span>USD {simulation.premiumPlusFees}</span>
                 </h2>
                 <h3>
                     <Image src={IconRain} width={25} height={25} alt="Wallet" />

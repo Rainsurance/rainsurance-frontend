@@ -16,6 +16,9 @@ const policySchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Risk'
         },
+        bundleId :{
+            type: Number,
+        },
         walletAddress: {
             type: String,
         },

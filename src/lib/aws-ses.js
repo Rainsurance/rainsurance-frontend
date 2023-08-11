@@ -70,7 +70,7 @@ export const sendPolicyMail = async (policy) => {
                                     place={policy.risk.place.name}
                                     startDate={policy.risk.startDate}
                                     endDate={policy.risk.endDate}
-                                    days={policy.risk.days}
+                                    days={policy.risk.precDays}
                                     amount={policy.sumInsured}
                                     precHist={policy.risk.precHist}
                                 />)

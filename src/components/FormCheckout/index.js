@@ -34,7 +34,7 @@ import RainProductAbi from "../../utils/RainProductCLFunctions.json";
 
 const createUseFormSchema = z.object({
     name: z.string().nonempty("Full name is required"),
-    doc: z.string().nonempty("Tax id is required"),
+    // doc: z.string().nonempty("Tax id is required"),
     email: z
         .string()
         .email("Email is required and needs to be a valid email address"),
@@ -43,7 +43,7 @@ const createUseFormSchema = z.object({
 const FormCheckout = ({ setSimulation, simulation }) => {
     const [activeButton, setActiveButton] = useState(0);
     const [submitting, setSubmitting] = useState(false);
-    const [customer, setCustomer] = useState(false);
+    const [customer, setCustomer] = useState(null);
     const [transaction, setTransaction] = useState("");
     const [step, setStep] = useState(0); // 1 = riskId / 2 = creating risk / 3 = risk found or created / 4 = approving / 5 = approved / 6 = creating policy / 7 = policy created
     const { address } = useAccount();
@@ -63,7 +63,7 @@ const FormCheckout = ({ setSimulation, simulation }) => {
         functionName: "getRiskId",
         enabled: false,
         args: [
-            simulation.place?.placeId,
+            simulation.place?.placeSlug,
             simulation.startDate / 1000,
             simulation.endDate / 1000,
         ],
@@ -168,6 +168,7 @@ const FormCheckout = ({ setSimulation, simulation }) => {
                 premium: simulation.premium,
                 sumInsured: simulation.amount,
                 riskId,
+                bundleId: simulation.bundleId,
                 customer: { ...customer, wallet: address },
             }),
         });
@@ -190,8 +191,8 @@ const FormCheckout = ({ setSimulation, simulation }) => {
         if (step <= 5) {
             approve({
                 args: [
-                    process.env.NEXT_PUBLIC_INSTANCE_TREASURY_ADDRESS,
-                    ethers.utils.parseUnits("100", 6),
+                    process.env.NEXT_PUBLIC_GIF_TREASURY_ADDRESS,
+                    ethers.utils.parseUnits(simulation.premiumPlusFees, 6),  
                 ],
             });
         }
@@ -232,13 +233,13 @@ const FormCheckout = ({ setSimulation, simulation }) => {
                         </label>
                         {errors.name && <span>{errors.name.message}</span>}
                     </ItemFormCheckout>
-                    <ItemFormCheckout>
+                    {/* <ItemFormCheckout>
                         <label>
                             Tax ID
                             <input type="text" {...register("doc")} />
                         </label>
                         {errors.doc && <span>{errors.doc.message}</span>}
-                    </ItemFormCheckout>
+                    </ItemFormCheckout> */}
                     <ItemFormCheckout>
                         <label>
                             E-mail

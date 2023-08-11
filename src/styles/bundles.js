@@ -47,37 +47,36 @@ export const Table = styled.div`
 `;
 export const TableHeader = styled.div`
   display: grid;
-  gap: 30px;
-  grid-template-columns: 30px 170px 50px 50px 90px 100px 60px 90px 80px;
+  gap: 20px;
+  grid-template-columns: 30px 170px 50px 50px 100px 100px 50px 20px 100px 50px;
   border-bottom: 1px solid #afc0d6;
   padding-bottom: 20px;
   padding-left: 8px;
+  
   p {
     font-size: 14px;
     color: #fff;
     font-family: 'gothambold';
     text-transform: uppercase;
+    text-align: center;
   }
+
 `;
 export const TableBody = styled.div`
   display: grid;
-  gap: 30px;
-  grid-template-columns: 30px 170px 50px 50px 90px 100px 60px 90px 80px;
+  gap: 20px;
+  grid-template-columns: 30px 170px 50px 50px 100px 100px 50px 20px 100px 50px;
   border-bottom: 1px solid #afc0d6;
   padding: 10px 8px;
   align-items: center;
-
+  
   p {
     font-size: 12px;
     color: #fff;
     font-family: 'gothamextra_light';
-  }
-  p + p + p + p + p + p + p {
     text-align: center;
   }
-  p:last-child {
-    padding-right: 8px;
-  }
+
 `;
 
 export const Status = styled.p`

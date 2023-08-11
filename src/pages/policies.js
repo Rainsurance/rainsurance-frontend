@@ -17,14 +17,18 @@ import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 import { readContract } from "@wagmi/core";
 
-import { ethers } from "ethers";
 import RainProductAbi from "../utils/RainProductCLFunctions.json";
 import InstanceServiceAbi from "../utils/InstanceService.json";
 import { destinations } from "../utils/destinations";
+import { 
+    formatDate,
+    isFutureDate,
+    b2s
+} from '../lib/helpers';
 
 const precipitationMultiplier = Number(process.env.NEXT_PUBLIC_PRECIPITATION_MULTIPLIER);
 const percentageMultiplier = Number(process.env.NEXT_PUBLIC_PERCENTAGE_MULTIPLIER);
-const usdcMultiplier = 1e6;
+const usdcMultiplier = Number(process.env.NEXT_PUBLIC_USDC_MULTIPLIER);
 const USDollar = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -42,19 +46,6 @@ const FILTER_RED = "invert(24%) sepia(66%) saturate(2718%) hue-rotate(340deg) br
 const ICON_BLUE = '/icons/icon-pending.png'
 const ICON_GREEN = '/icons/icon-approved.png'
 const ICON_RED = '/icons/icon-rejected.png'
-
-function b2s(input) {
-    //return ethers.decodeBytes32String(input); //v5
-    return ethers.utils.parseBytes32String(input); //v6
-}
-
-function formatDate(timestamp) {
-    return new Date(timestamp * 1000).toISOString().slice(0, 10);
-}
-
-function isFutureDate(timestamp) {
-    return timestamp * 1000 > new Date().getTime();
-}
 
 function policyState(policy) {
 
@@ -180,15 +171,20 @@ function policyState(policy) {
 }
 
 function preparePolicy(data) {
-    const cityId = b2s(data.placeId).split("-")[0];
+
+    const risk = data.risk;
+    const application = data.application;
+    const claimsCount = Number(data.claimsCount);
+
+    const cityId = risk.place.split("-")[0];
     var city = destinations.find((item) => item.id === cityId);
     if (!city) {
         city = { name: "Unknown" };
     }
 
-    const sumInsured = Number(data.sumInsured) / usdcMultiplier;
+    const sumInsured = Number(application.sumInsuredAmount) / usdcMultiplier;
     const sumInsuredUSD = USDollar.format(sumInsured);
-    const refund = Number(sumInsured) * Number(data.risk.payoutPercentage);
+    const refund = Number(sumInsured) * Number(risk.payoutPercentage);
     const refundUSD = USDollar.format(refund);
 
     const policy = {
@@ -197,18 +193,17 @@ function preparePolicy(data) {
         city,
         status,
         style,
-        startDate: formatDate(Number(data.startDate)),
-        endDate: formatDate(Number(data.endDate)),
+        startDate: formatDate(Number(risk.startDate)),
+        endDate: formatDate(Number(risk.endDate)),
         sumInsured,
         sumInsuredUSD,
         refund,
         refundUSD,
-        avgPrec: Number(data.precHist) / precipitationMultiplier,
-        isActive: isFutureDate(Number(data.endDate)),
-        risk: data.risk,
-        application: data.application,
-        details: data.details,
-        claimsCount: Number(data.claimsCount),
+        avgPrec: Number(risk.precHist) / precipitationMultiplier,
+        isActive: isFutureDate(Number(risk.endDate)),
+        risk,
+        application,
+        claimsCount,
     }
     
     const {status, style} = policyState(policy);
@@ -222,9 +217,9 @@ function preparePolicy(data) {
 
 const PoliciesView = () => {
     const [policies, setPolicies] = useState([]);
-    const [policiesIdx, setPoliciesIdx] = useState(null);
+    const [policiesIds, setPoliciesIds] = useState([]);
     const [claiming, setClaiming] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [connectMessage, setConnectMessage] = useState("");
     const [selectedItem, setSelectedItem] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
@@ -232,7 +227,8 @@ const PoliciesView = () => {
     const { address } = useAccount();
 
     async function getPoliceIds(walletAddress) {
-        console.log(`getPoliceIds for address ${address}...`);
+        setLoading(true);
+        console.log(`Pulling policeIds for address ${walletAddress}...`);
         await readContract({
             address: process.env.NEXT_PUBLIC_RAIN_PRODUCT_ADDRESS,
             abi: RainProductAbi,
@@ -240,63 +236,64 @@ const PoliciesView = () => {
             args: [walletAddress],
         }).then((data) => {
             console.log("all policieIds", data);
-            if(data.length > 0) {
-                setPoliciesIdx(Array(Math.min(data.length, limit)).fill().map((_, i) => data.length - 1 - i));
+            if (data.length > 0){
+                setPoliciesIds(data.length > limit ? data.slice(limit): data)
             } else {
-                setPoliciesIdx(null);
+                setPoliciesIds(null);
             }
+            setLoading(false);
         });
     }
 
-    async function getDetails(policy) {
-        console.log(`Pulling details for policyId ${policy.processId}...`);
-        const details = readContract({
-            address: process.env.NEXT_PUBLIC_INSTANCE_SERVICE_ADDRESS,
+    async function getPolicyDetails(policyId) {
+        console.log(`Pulling info for policy ${policyId}...`);
+        return readContract({
+            address: process.env.NEXT_PUBLIC_GIF_INSTANCE_SERVICE_ADDRESS,
             abi: InstanceServiceAbi,
             functionName: "getPolicy",
-            args: [policy.processId],
+            args: [policyId],
         })
-        return Promise.all([policy, details])
-        .then(([policy, details]) => {
-            console.log(`DONE! DETAILS for policy ${policy.processId} is:`);
-            console.log(details);
-            return {...policy, details};
+        .then((policy) => {
+            console.log(`DONE! Info for policy ${policyId} is:`);
+            console.log({...policy, processId: policyId});
+            return {...policy, processId: policyId};
         })
     }
 
-    async function countClaims(policy) {
-        console.log(`Count claims for policyId ${policy.processId}...`);
-        const claimsCount = readContract({
-            address: process.env.NEXT_PUBLIC_INSTANCE_SERVICE_ADDRESS,
-            abi: InstanceServiceAbi,
-            functionName: "claims",
-            args: [policy.processId],
-        })
-        return Promise.all([policy, claimsCount])
-        .then(([policy, claimsCount]) => {
-            console.log(`DONE! ${claimsCount} CLAIMS for policy ${policy.processId}`);
-            return {...policy, claimsCount};
-        })
-    } 
-
     async function getApplication(policy) {
-        console.log(`Pulling application for policyId ${policy.processId}...`);
+        console.log(`Pulling application for policy ${policy.processId}...`);
         const application = readContract({
-            address: process.env.NEXT_PUBLIC_INSTANCE_SERVICE_ADDRESS,
+            address: process.env.NEXT_PUBLIC_GIF_INSTANCE_SERVICE_ADDRESS,
             abi: InstanceServiceAbi,
             functionName: "getApplication",
             args: [policy.processId],
         })
         return Promise.all([policy, application])
         .then(([policy, application]) => {
-            console.log(`DONE! APPLICATION for policy ${policy.processId} is:`);
-            console.log(application);
+            console.log(`DONE! Application info for policy ${policy.processId} is:`);
+            console.log({...policy, application});
             return {...policy, application};
         });
     }
 
+    async function getRiskIdForPolicy(policy) {
+        console.log(`Pulling riskId for policy ${policy.processId}...`);
+        const riskId = readContract({
+            address: process.env.NEXT_PUBLIC_RAIN_PRODUCT_ADDRESS,
+            abi: RainProductAbi,
+            functionName: "getRiskIdForProcess",
+            args: [policy.processId],
+        })
+        return Promise.all([policy, riskId])
+        .then(([policy, riskId]) => {
+            console.log(`DONE! RiskId for policy ${policy.processId} is:`);
+            console.log(riskId);
+            return {...policy, riskId};
+        })
+    }
+
     async function getRisk(policy) {
-        console.log(`Pulling riskId ${policy.riskId}...`);
+        console.log(`Pulling risk ${policy.riskId} for policy ${policy.processId}...`);
         const risk = readContract({
             address: process.env.NEXT_PUBLIC_RAIN_PRODUCT_ADDRESS,
             abi: RainProductAbi,
@@ -306,7 +303,7 @@ const PoliciesView = () => {
         });
         return Promise.all([policy, risk])
         .then(([policy, risk]) => {
-            console.log(`DONE! RISK for policy ${policy.processId} is:`);
+            console.log(`DONE! Risk for policy ${policy.processId} is:`);
             console.log(risk);
             return {...policy, 
                         risk: {...risk, 
@@ -318,29 +315,29 @@ const PoliciesView = () => {
         })
     }
 
-    async function pullPolicy(walletAddress, idx) {
-        console.log(`Pulling policy idx ${idx}...`);
-        return readContract({
-            address: process.env.NEXT_PUBLIC_RAIN_PRODUCT_ADDRESS,
-            abi: RainProductAbi,
-            functionName: "processForHolder",
-            args: [walletAddress, idx],
+    async function countClaims(policy) {
+        console.log(`Count claims for policy ${policy.processId}...`);
+        const claimsCount = readContract({
+            address: process.env.NEXT_PUBLIC_GIF_INSTANCE_SERVICE_ADDRESS,
+            abi: InstanceServiceAbi,
+            functionName: "claims",
+            args: [policy.processId],
         })
-        .then((policy) => {
-            console.log(`DONE! Policy ${idx} is:`);
-            console.log(policy);
-            return policy;
+        return Promise.all([policy, claimsCount])
+        .then(([policy, claimsCount]) => {
+            console.log(`DONE! ${claimsCount} claims for policy ${policy.processId}`);
+            return {...policy, claimsCount};
         })
-    }
+    } 
 
     async function getPolicies() {
-        console.log(`Pulling policies for address ${address} with idx ${policiesIdx}...`)
         setLoading(true);
-        policiesIdx.forEach((idx) => {
-            pullPolicy(address, idx)
-            .then(getRisk)
+        policiesIds.forEach((policyId) => {
+            console.log(`Pulling policies ${policyId}...`)
+            getPolicyDetails(policyId)
             .then(getApplication)
-            .then(getDetails)
+            .then(getRiskIdForPolicy)
+            .then(getRisk)
             .then(countClaims)
             .then((policy) => {
                 addPolicy(preparePolicy(policy));
@@ -408,28 +405,33 @@ const PoliciesView = () => {
             setSelectedItem(item);
             setModalOpen(true);
         }
-      };    
+      };
 
     useEffect(() => {
-        if (address && !policiesIdx) {
+        console.log("address: ", address);
+        console.log("policiesIds.length: ", policiesIds.length);
+        console.log("loading: ", loading);
+        if (address && policiesIds.length == 0 && !loading) {
             getPoliceIds(address);
         }
-    }, [address, policiesIdx]);
+    }, [address, policiesIds, loading]);
 
     useEffect(() => {
         if (!address) {
+            console.log("No wallet connected");
             setConnectMessage("Please connect your wallet to see your policies");
             setPolicies([]);
-            setPoliciesIdx(null);
+            setPoliciesIds([]);
         }
-        if (address && !policiesIdx) {
+        if (address && policiesIds.length == 0) {
+            console.log("No policy was found for this address");
             setConnectMessage("No policy was found for this address");
         }
-        if (address && policiesIdx) {
+        if (address && policiesIds.length > 0) {
             setConnectMessage("");
             getPolicies()
         }
-    }, [address, policiesIdx]);
+    }, [address, policiesIds]);
 
     useEffect(() => {
         console.log("policies is:", policies);
