@@ -420,8 +420,6 @@ const PoliciesView = () => {
         if (!address) {
             console.log("No wallet connected");
             setConnectMessage("Please connect your wallet to see your policies");
-            setPolicies([]);
-            setPoliciesIds([]);
         }
         if (address && policiesIds.length == 0) {
             console.log("No policy was found for this address");
