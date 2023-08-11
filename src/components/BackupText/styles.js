@@ -11,5 +11,8 @@ export const ContainerTxt = styled.div`
     font-family: 'gotham_roundedbold';
     font-size: 16px;
     color: #fff;
+    u {
+      text-decoration: underline;
+    }
   }
 `;

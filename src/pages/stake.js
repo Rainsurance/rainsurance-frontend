@@ -213,7 +213,7 @@ const StakeView = () => {
     <Layout title="Stake">
       <EnvForm>
         <h2>
-        <span>Create a new risk bundle</span>
+          <span>Create a new risk bundle</span>
         </h2>
         <form onSubmit={handleSubmit(submit)}>
           <GridItem>
