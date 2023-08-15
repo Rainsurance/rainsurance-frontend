@@ -87,7 +87,7 @@ const StakeView = () => {
   const router = useRouter();
   
   const [endDate, setEndDate] = useState(null);
-  const [duration, setDuration] = useState(0);
+  const [duration, setDuration] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [step, setStep] = useState(0); // 1 = wallet connected / 2 = data entered / 3 = approving / 4 = approved / 5 = creating bundle / 6 = bundle created
   const [transaction, setTransaction] = useState("");
@@ -106,12 +106,15 @@ const StakeView = () => {
     const newDuration = event.target.valueAsNumber;
     const newEndDateTimestamp = new Date().getTime() + newDuration * oneDayMili;
     const newEndDate = new Date(newEndDateTimestamp);
-    setDuration(newDuration);
-    setEndDate(newEndDate);
-    setValue("openUntil", newEndDate, {
-      shouldValidate: false,
-      shouldDirty: true
-    })
+    if(newEndDate && newDuration) {
+      setDuration(newDuration);
+      setEndDate(newEndDate);
+      setValue("openUntil", newEndDate, {
+        shouldValidate: false,
+        shouldDirty: true
+      })
+    }
+
   }
 
   const { write: approve } = useContractWrite({
@@ -243,6 +246,7 @@ const StakeView = () => {
                 <input
                   type="number"
                   value={duration}
+                  // placeholder="60"
                   {...register('lifetime', { valueAsNumber: true })}
                   onChange={handleLifetimeChange}
                 />
@@ -305,6 +309,7 @@ const StakeView = () => {
                 MINIMUM POLICY DURATION
                 <input 
                   type="number"
+                  // placeholder="1"
                   min={process.env.NEXT_PUBLIC_MIN_POLICY_DURATION}
                   {...register('minPolicyDuration', { valueAsNumber: true })}
                 />
@@ -319,6 +324,7 @@ const StakeView = () => {
                 MAXIMUM POLICY DURATION
                 <input
                   type="number"
+                  // placeholder="7"
                   min={process.env.NEXT_PUBLIC_MIN_POLICY_DURATION}
                   max={process.env.NEXT_PUBLIC_MAX_POLICY_DURATION}
                   {...register('maxPolicyDuration', { valueAsNumber: true })}
