@@ -408,10 +408,7 @@ const PoliciesView = () => {
       };
 
     useEffect(() => {
-        console.log("address: ", address);
-        console.log("policiesIds.length: ", policiesIds.length);
-        console.log("loading: ", loading);
-        if (address && policiesIds.length == 0 && !loading) {
+        if (address && policiesIds && policiesIds.length == 0 && !loading) {
             getPoliceIds(address);
         }
     }, [address, policiesIds, loading]);
@@ -421,11 +418,11 @@ const PoliciesView = () => {
             console.log("No wallet connected");
             setConnectMessage("Please connect your wallet to see your policies");
         }
-        if (address && policiesIds.length == 0) {
+        if (address && policiesIds && policiesIds.length == 0) {
             console.log("No policy was found for this address");
             setConnectMessage("No policy was found for this address");
         }
-        if (address && policiesIds.length > 0) {
+        if (address && policiesIds && policiesIds.length > 0) {
             setConnectMessage("");
             getPolicies()
         }
